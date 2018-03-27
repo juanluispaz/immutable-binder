@@ -1,0 +1,52 @@
+{
+  "name": "immutable-binder",
+  "version": "1.0.0",
+  "description": "Immutable data binder / cursor with TypeScript support",
+  "main": "src/binder.js",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^21.0.1",
+    "cloc": "^2.2.0",
+    "typescript": "2.5.2"
+  },
+  "scripts": {
+    "test": "jest",
+    "test-coverage": "jest --coverage",
+    "test-pro": "NODE_ENV=production jest",
+    "test-pro-coverage": "NODE_ENV=production jest --coverage",
+    "cloc": "cloc . --exclude-dir=node_modules",
+    "cloc-src": "cloc src",
+    "cloc-test": "cloc test",
+    "ts-test": "tsc --strict --noEmit test/typescript/code/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juanluispaz/immutable-binder.git"
+  },
+  "keywords": [
+    "cursor",
+    "immutable",
+    "tree",
+    "react",
+    "typescript",
+    "baobab",
+    "two-way",
+    "binding"
+  ],
+  "author": {
+    "name": "Juan Luis Paz Rojas",
+    "url": "http://github.com/juanluispaz"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/juanluispaz/immutable-binder/issues"
+  },
+  "homepage": "https://github.com/juanluispaz/immutable-binder",
+  "jest": {
+    "testRegex": "/test/.*\\.spec\\.js$",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ]
+  }
+}
