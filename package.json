@@ -1,6 +1,6 @@
 {
   "name": "immutable-binder",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Immutable data binder / cursor with TypeScript support",
   "main": "src/binder.js",
   "dependencies": {},
