@@ -34,3 +34,23 @@ test('NaN value', function() {
     
     expect(b.size.getValue()).toBe('foo');
 });
+
+test('createBinderIncludingFunctions function', function() {
+    expect(binder.createBinderIncludingFunctions).toBe(binder.createBinder);
+});
+
+test('createPreInitializedBinder function', function() {
+    expect(binder.createPreInitializedBinder).toBe(binder.createBinder);
+});
+
+test('createPreInitializedBinderIncludingFunctions function', function() {
+    expect(binder.createBinderIncludingFunctions).toBe(binder.createBinder);
+});
+
+test('withBinderMode function', function() {
+    expect(binder.withBinderMode().createBinder).toBe(binder.createBinder);
+});
+
+test('withSameBinderMode function', function() {
+    expect(binder.withBinderMode().createBinder).toBe(binder.createBinder);
+});

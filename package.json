@@ -1,13 +1,14 @@
 {
   "name": "immutable-binder",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Immutable data binder / cursor with TypeScript support",
   "main": "src/binder.js",
+  "types": "src/binder.d.ts",
   "dependencies": {},
   "devDependencies": {
     "jest": "^21.0.1",
     "cloc": "^2.2.0",
-    "typescript": "2.5.2"
+    "typescript": "2.8.1"
   },
   "scripts": {
     "test": "jest",

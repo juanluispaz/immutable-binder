@@ -97,6 +97,7 @@ function buildBinder(value, reuseBinders) {
     } else if (
         value instanceof Date
         || value instanceof Number
+        || value instanceof Boolean
         || value instanceof Function
         || value instanceof String
         || !(value instanceof Object)) {
@@ -104,6 +105,10 @@ function buildBinder(value, reuseBinders) {
     } else {
         return new MapBinder(value, reuseBinders);
     }
+}
+
+function isBinder(value) {
+    return value instanceof AbstractBinder;
 }
 
 function ensureNoBinder(value) {
@@ -850,13 +855,23 @@ function notBinder(binderToNegate) {
     return deriveBinderFrom(binderToNegate, createNegatedBinder, setNegatedValue, '_$deriveNot');
 }
 
+function withBinderMode() {
+    return createBinder;
+}
+
 module.exports = createBinder;
 createBinder.binder = createBinder;
 createBinder.createBinder = createBinder;
+createBinder.createBinderIncludingFunctions = createBinder;
+createBinder.createPreInitializedBinder = createBinder;
+createBinder.createPreInitializedBinderIncludingFunctions = createBinder;
 createBinder.not = notBinder;
 createBinder.notBinder = notBinder;
 createBinder.default = createBinder;
 createBinder.deriveFrom = deriveBinderFrom;
 createBinder.deriveBinderFrom = deriveBinderFrom;
 createBinder.inheritedExtras = inheritedExtras;
+createBinder.isBinder = isBinder;
+createBinder.withBinderMode = withBinderMode;
+createBinder.withSameBinderMode = withBinderMode;
 Object.defineProperty(createBinder, "__esModule", { value: true });

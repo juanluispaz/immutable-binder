@@ -1,9 +1,10 @@
-import {createBinder, Binder, ObjectBinder, MapBinder, ArrayBinder, ObjectMap, inheritedExtras} from '../../../src/binder'
+import {createBinder, createBinderIncludingFunctions, createPreInitializedBinder, createPreInitializedBinderIncludingFunctions, Binder, PBinder, PFBinder, FBinder, ObjectBinder, MapBinder, ArrayBinder, ObjectMap, inheritedExtras, binderMode, withBinderMode, withSameBinderMode, isBinder} from '../../../src/binder'
 
 /*
  * Test definition
  */
 declare type Value = string | null
+declare type DefinedValue = string
 declare type BinderType<T> = Binder<T>
 
 declare type ValueBinder = BinderType<Value>
@@ -274,3 +275,480 @@ numberVar = arrayBinder.findIndex((_value, _index, _arrayBinder) => {
 })
 
 var ie: string[] = inheritedExtras
+
+/*************************************************/
+
+declare var vb: Binder<Value>
+declare var vpb: PBinder<Value>
+declare var vpfb: PFBinder<Value>
+declare var vfb: FBinder<Value>
+
+declare var avb: Binder<any>
+declare var avpb: PBinder<any>
+declare var avpfb: PFBinder<any>
+declare var avfb: FBinder<any>
+
+vb = vfb
+vpb = vpfb
+vb = vpb
+vb = vfb
+vb = vpfb
+
+avb = vb
+avpb = vpb
+avpfb = vpfb
+avfb = vfb
+
+avb = vfb
+avpb = vpfb
+avb = avpb
+avb = vfb
+avb = vpfb
+
+vb = createBinder(valueVar)
+vb = createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+})
+vb = createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avb = _oldBinder
+    return _newValue
+})
+
+vpb = createPreInitializedBinder(valueVar)
+vpb = createPreInitializedBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+})
+vpb = createPreInitializedBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpb = _oldBinder
+    return _newValue
+})
+
+vpfb = createPreInitializedBinderIncludingFunctions(valueVar)
+vpfb = createPreInitializedBinderIncludingFunctions(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+})
+vpfb = createPreInitializedBinderIncludingFunctions(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpfb = _oldBinder
+    return _newValue
+})
+
+vfb = createBinderIncludingFunctions(valueVar)
+vfb = createBinderIncludingFunctions(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+})
+vfb = createBinderIncludingFunctions(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avfb = _oldBinder
+    return _newValue
+})
+
+vb = withBinderMode<binderMode.DefaultMode>().createBinder(valueVar)
+vb = withBinderMode<binderMode.DefaultMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+})
+vb = withBinderMode<binderMode.DefaultMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avb = _oldBinder
+    return _newValue
+})
+
+vpb = withBinderMode<binderMode.PreInitializedMode>().createBinder(valueVar)
+vpb = withBinderMode<binderMode.PreInitializedMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+})
+vpb = withBinderMode<binderMode.PreInitializedMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpb = _oldBinder
+    return _newValue
+})
+
+vpfb = withBinderMode<binderMode.PreInitializedAndIncludeFunctionsMode>().createBinder(valueVar)
+vpfb = withBinderMode<binderMode.PreInitializedAndIncludeFunctionsMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+})
+vpfb = withBinderMode<binderMode.PreInitializedAndIncludeFunctionsMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpfb = _oldBinder
+    return _newValue
+})
+
+vfb = withBinderMode<binderMode.IncludeFunctionsMode>().createBinder(valueVar)
+vfb = withBinderMode<binderMode.IncludeFunctionsMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+})
+vfb = withBinderMode<binderMode.IncludeFunctionsMode>().createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avfb = _oldBinder
+    return _newValue
+})
+
+vb = withSameBinderMode(vb).createBinder(valueVar)
+vb = withSameBinderMode(vb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+})
+vb = withSameBinderMode(vb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vb = _newRootBinder
+    avb = _newBinder
+    avb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avb = _oldBinder
+    return _newValue
+})
+
+vpb = withSameBinderMode(vpb).createBinder(valueVar)
+vpb = withSameBinderMode(vpb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+})
+vpb = withSameBinderMode(vpb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpb = _newRootBinder
+    avpb = _newBinder
+    avpb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpb = _oldBinder
+    return _newValue
+})
+
+vpfb = withSameBinderMode(vpfb).createBinder(valueVar)
+vpfb = withSameBinderMode(vpfb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+})
+vpfb = withSameBinderMode(vpfb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vpfb = _newRootBinder
+    avpfb = _newBinder
+    avpfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avpfb = _oldBinder
+    return _newValue
+})
+
+vfb = withSameBinderMode(vfb).createBinder(valueVar)
+vfb = withSameBinderMode(vfb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+})
+vfb = withSameBinderMode(vfb).createBinder(valueVar, (_newRootBinder, _newBinder, _oldBinder) => {
+    vfb = _newRootBinder
+    avfb = _newBinder
+    avfb = _oldBinder
+}, (_newValue, _oldBinder) => {
+    anyValue = _newValue
+    avfb = _oldBinder
+    return _newValue
+})
+
+declare var mvb: Value | Binder<Value>
+declare var mvpb: Value | PBinder<Value>
+declare var mvpfb: Value | PFBinder<Value>
+declare var mvfb: Value | FBinder<Value>
+
+if (isBinder(mvb)) {
+    vb = mvb
+}
+
+if (isBinder(mvpb)) {
+    vpb = mvpb
+}
+
+if (isBinder(mvpfb)) {
+    vpfb = mvpfb
+}
+
+if (isBinder(mvfb)) {
+    vfb = mvfb
+}
+
+interface ValueObject {
+    value: Value
+    valueOpt?: Value
+    valueFunction(value: Value): Value
+}
+
+declare var valueOjectItemBinder : Binder<Value | undefined>
+declare var valueOjectFunctionItemBinder : Binder<Value | undefined | ((value: Value) => Value)>
+
+declare var vob: Binder<ValueObject>
+declare var vopb: PBinder<ValueObject>
+declare var vopfb: PFBinder<ValueObject>
+declare var vofb: FBinder<ValueObject>
+
+declare var uvb: Binder<Value|undefined>|undefined
+declare var uvpb: PBinder<Value|undefined>
+declare var uvpfb: PFBinder<Value|undefined>
+declare var uvfb: FBinder<Value|undefined>|undefined
+
+declare var fvpfb: PFBinder<(value: Value) => Value>
+declare var fvfb: FBinder<(value: Value) => Value>
+
+vob = vofb
+vopb = vopfb
+vob = vopb
+vob = vofb
+vob = vopfb
+
+avb = vob
+avpb = vopb
+avpfb = vopfb
+avfb = vofb
+
+avb = vofb
+avpb = vopfb
+avb = avpb
+avb = vofb
+avb = vopfb
+
+vb = vob.value
+vpb = vopb.value
+vpfb = vopfb.value
+vfb = vofb.value
+
+uvb = vob.valueOpt
+uvpb = vopb.valueOpt
+uvpfb = vopfb.valueOpt
+uvfb = vofb.valueOpt
+
+fvpfb = vopfb.valueFunction
+fvfb = vofb.valueFunction
+
+vb = vob.get('value')
+vpb = vopb.get('value')
+vpfb = vopfb.get('value')
+vfb = vofb.get('value')
+
+uvb = vob.get('valueOpt')
+uvpb = vopb.get('valueOpt')
+uvpfb = vopfb.get('valueOpt')
+uvfb = vofb.get('valueOpt')
+
+fvpfb = vopfb.get('valueFunction')
+fvfb = vofb.get('valueFunction')
+
+vob = vob.set('value', vb.getValue())
+vopb = vopb.set('value', vpb.getValue())
+vopfb = vopfb.set('value', vpfb.getValue())
+vofb = vofb.set('value', vfb.getValue())
+
+if (uvb != undefined) {
+    vob = vob.set('valueOpt', uvb.getValue())
+}
+vopb = vopb.set('valueOpt', uvpb.getValue())
+vopfb = vopfb.set('valueOpt', uvpfb.getValue())
+if (uvfb != undefined) {
+    vofb = vofb.set('valueOpt', uvfb.getValue())
+}
+
+vopfb = vopfb.set('valueFunction', fvpfb.getValue())
+vofb = vofb.set('valueFunction', fvfb.getValue())
+
+vob = vob.delete('valueOpt')
+vopb = vopb.delete('valueOpt')
+vopfb = vopfb.delete('valueOpt')
+vofb = vofb.delete('valueOpt')
+
+booleanVar = vob.has('value')
+booleanVar = vob.has('valueOpt')
+booleanVar = vopb.has('value')
+booleanVar = vopb.has('valueOpt')
+booleanVar = vopfb.has('value')
+booleanVar = vopfb.has('valueOpt')
+booleanVar = vopfb.has('valueFunction')
+booleanVar = vofb.has('value')
+booleanVar = vofb.has('valueOpt')
+booleanVar = vofb.has('valueFunction')
+
+type ValuesTypes<T> = ({ [K in keyof T]: T[K]})[keyof T];
+declare var v_ : ValuesTypes<ValueObject>
+
+vob.forEach((_value, _key, _objectBinder) => { 
+    valueOjectItemBinder = _value
+    stringVar = _key
+    vob = _objectBinder
+})
+
+vopb.forEach((_value, _key, _objectBinder) => { 
+    valueOjectItemBinder = _value
+    stringVar = _key
+    vopb = _objectBinder
+})
+
+vopfb.forEach((_value, _key, _objectBinder) => { 
+    valueOjectFunctionItemBinder = _value
+    stringVar = _key
+    vopfb = _objectBinder
+})
+
+vofb.forEach((_value, _key, _objectBinder) => { 
+    valueOjectFunctionItemBinder = _value
+    stringVar = _key
+    vofb = _objectBinder
+})
+
+declare var definedValueBinder : Binder<DefinedValue>
+
+if (valueBinder.hasValue()) {
+    definedValueBinder = valueBinder
+}
+
+declare var arrayavb: Binder<any[]>
+declare var arrayavpb: PBinder<any[]>
+declare var arrayavpfb: PFBinder<any[]>
+declare var arrayavfb: FBinder<any[]>
+
+if (avb.isArrayBinder()) {
+    arrayavb = avb
+}
+
+if (avpb.isArrayBinder()) {
+    arrayavpb = avpb
+}
+
+if (avpfb.isArrayBinder()) {
+    arrayavpfb = avpfb
+}
+
+if (avfb.isArrayBinder()) {
+    arrayavfb = avfb
+}
+
+declare var mapavb: Binder<ObjectMap<any>>
+declare var mapavpb: PBinder<ObjectMap<any>>
+declare var mapavpfb: PFBinder<ObjectMap<any>>
+declare var mapavfb: FBinder<ObjectMap<any>>
+
+if (avb.isMapBinder()) {
+    mapavb = avb
+}
+
+if (avpb.isMapBinder()) {
+    mapavpb = avpb
+}
+
+if (avpfb.isMapBinder()) {
+    mapavpfb = avpfb
+}
+
+if (avfb.isMapBinder()) {
+    mapavfb = avfb
+}
+
+declare var uavb: Binder<any> | undefined
+declare var uavpb: PBinder<any> | undefined
+declare var uavpfb: PFBinder<any> | undefined
+declare var uavfb: FBinder<any> | undefined
+
+declare var avb2: Binder<any>
+declare var avpb2: PBinder<any>
+declare var avpfb2: PFBinder<any>
+declare var avfb2: FBinder<any>
+
+if (avb.isObjectBinder()) {
+    let anyObject = avb
+    uavb = avb.get('foo')
+    anyObject = avb.set('foo', anyValue)
+    anyObject = avb.delete('foo')
+    booleanVar = avb.has('foo')
+    avb.forEach((_value, _key, _objectBinder) => { 
+        avb2 = _value
+        stringVar = _key
+        anyObject = _objectBinder
+    })
+}
+
+if (avpb.isObjectBinder()) {
+    let anyObject = avpb
+    uavpb = avpb.get('foo')
+    anyObject = avpb.set('foo', anyValue)
+    anyObject = avpb.delete('foo')
+    booleanVar = avpb.has('foo')
+    avpb.forEach((_value, _key, _objectBinder) => { 
+        avpb2 = _value
+        stringVar = _key
+        anyObject = _objectBinder
+    })
+}
+
+if (avpfb.isObjectBinder()) {
+    var anyObject = avb
+    uavpfb = avpfb.get('foo')
+    anyObject = avpfb.set('foo', anyValue)
+    anyObject = avpfb.delete('foo')
+    booleanVar = avpfb.has('foo')
+    avpfb.forEach((_value, _key, _objectBinder) => { 
+        avpfb2 = _value
+        stringVar = _key
+        anyObject = _objectBinder
+    })
+}
+
+if (avfb.isObjectBinder()) {
+    var anyObject = avb
+    uavfb = avfb.get('foo')
+    anyObject = avfb.set('foo', anyValue)
+    anyObject = avfb.delete('foo')
+    booleanVar = avfb.has('foo')
+    avfb.forEach((_value, _key, _objectBinder) => { 
+        avfb2 = _value
+        stringVar = _key
+        anyObject = _objectBinder
+    })
+}

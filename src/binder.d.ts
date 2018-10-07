@@ -1,312 +1,359 @@
-export declare interface Binder<T> {
-    getValue(): T;
-
-    setValue(this: Binder<boolean>, value: boolean, force?: boolean): Binder<boolean>;
-    setValue(this: Binder<number>, value: number, force?: boolean): Binder<number>;
-    setValue(this: Binder<string>, value: string, force?: boolean): Binder<string>;
-    setValue(this: Binder<Date>, value: Date, force?: boolean): Binder<Date>;
-
-    setValue<Q>(this: Binder<Q[]>, value: Q[], force?: boolean): ArrayBinder<Q>;
-    setValue<Q>(this: Binder<ObjectMap<Q>>, value: ObjectMap<Q>, force?: boolean): MapBinder<Q>
-    setValue<Q extends Object>(this: Binder<Q>, value: Q, force?: boolean): ObjectBinder<Q>
-
-    setValue(value: T, force?: boolean): Binder<T>;
-
-    toString(): string;
-    toLocaleString(locales?: string | string[], options?: any): string;
-
-    hasValue(this: Binder<boolean | undefined | null>): this is Binder<boolean>;
-    hasValue(this: Binder<number | undefined | null>): this is Binder<number>;
-    hasValue(this: Binder<string | undefined | null>): this is Binder<string>;
-    hasValue(this: Binder<Date | undefined | null>): this is Binder<Date>;
-
-    hasValue<Q>(this: Binder<Q[] | undefined | null>): this is ArrayBinder<Q>;
-    hasValue<Q>(this: Binder<ObjectMap<Q> | undefined | null>): this is MapBinder<Q>;
-    hasValue<Q extends Object>(this: Binder<Q | undefined | null>): this is ObjectBinder<Q>;
-
-    hasValue(): boolean;
-
-    _(this: Binder<boolean>): Binder<boolean>;
-    _(this: Binder<number>): Binder<number>;
-    _(this: Binder<string>): Binder<string>;
-    _(this: Binder<Date>): Binder<Date>;
-
-    _<Q>(this: Binder<Q[]>): ArrayBinder<Q>;
-    _<Q>(this: Binder<ObjectMap<Q>>): MapBinder<Q>;
-    _<Q extends Object>(this: Binder<Q>): ObjectBinder<Q>;
-
-    _(): Binder<T>;
-
-    // Additional information
-    getExtras(): any;
-    getParent(): Binder<any> | null;
-    getKey(): string | number | null;
-    isValidBinder(): boolean;
-    getDerivedFrom(): DerivedBinderFrom | null;
-
-    // Binder type information
-    isValueBinder(): this is Binder<T>;
-
-    isObjectBinder(this: Binder<boolean>): boolean;
-    isObjectBinder(this: Binder<number>): boolean;
-    isObjectBinder(this: Binder<string>): boolean;
-    isObjectBinder(this: Binder<Date>): boolean;
-
-    isObjectBinder<Q>(this: Binder<Q[]>): boolean;
-    isObjectBinder<Q>(this: Binder<ObjectMap<Q>>): boolean;
-    isObjectBinder<Q extends Object>(this: Binder<Q>): this is ObjectBinder<Q>;
-
-    isObjectBinder(): boolean;
-
-    isMapBinder<Q>(this: Binder<ObjectMap<Q>>): this is MapBinder<Q>;
-    isMapBinder(): boolean;
-
-    isArrayBinder<Q>(this: Binder<Q[]>): this is ArrayBinder<Q>;
-    isArrayBinder<Q>(): boolean;
-    
-    // advanced updates
-    updateExtras(this: Binder<boolean>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<boolean>;
-    updateExtras(this: Binder<number>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<number>;
-    updateExtras(this: Binder<string>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<string>;
-    updateExtras(this: Binder<Date>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<Date>;
-
-    updateExtras<Q>(this: Binder<Q[]>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): ArrayBinder<Q>;
-    updateExtras<Q>(this: Binder<ObjectMap<Q>>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): MapBinder<Q>
-    updateExtras<Q extends Object>(this: Binder<Q>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): ObjectBinder<Q>
-
-    updateExtras(newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>;
-    
-    setValueAndUpdateExtras(this: Binder<boolean>, value: boolean, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<boolean>;
-    setValueAndUpdateExtras(this: Binder<number>, value: number, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<number>;
-    setValueAndUpdateExtras(this: Binder<string>, value: string, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<string>;
-    setValueAndUpdateExtras(this: Binder<Date>, value: Date, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<Date>;
-
-    setValueAndUpdateExtras<Q>(this: Binder<Q[]>, value: Q[], newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): ArrayBinder<Q>;
-    setValueAndUpdateExtras<Q>(this: Binder<ObjectMap<Q>>, value: ObjectMap<Q>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): MapBinder<Q>
-    setValueAndUpdateExtras<Q extends Object>(this: Binder<Q>, value: Q, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): ObjectBinder<Q>
-
-    setValueAndUpdateExtras(value: T, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>;
-    
-    updateExtrasInCurrentBinder(newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}): void;
+export interface ObjectMap<T> {
+    [key: string]: T | undefined;
 }
 
-export declare interface ArrayBinder<T> extends Binder<T[]> {
-    length: number;
-    readonly [index: number]: Binder<T>;
+export type Binder<T, MODE=binderMode.DefaultMode> = binderInternals.InternalBaseBinder<T, MODE> & binderInternals.InternalBinder<T, MODE>;
+export type PBinder<T, MODE=binderMode.PreInitializedMode> = Binder<T, MODE>;
+export type PFBinder<T, MODE=binderMode.PreInitializedAndIncludeFunctionsMode> = Binder<T, MODE>;
+export type FBinder<T, MODE=binderMode.IncludeFunctionsMode> = Binder<T, MODE>;
 
-    get(this: ArrayBinder<boolean>, index: number): Binder<boolean>;
-    get(this: ArrayBinder<number>, index: number): Binder<number>;
-    get(this: ArrayBinder<string>, index: number): Binder<string>;
-    get(this: ArrayBinder<Date>, index: number): Binder<Date>;
+export declare function createBinder<T>(value: T, update?: binderUtils.UpdateBinder<T, binderMode.DefaultMode>, initialize?: binderUtils.InitializeValueBinder<binderMode.DefaultMode>): Binder<T, binderMode.DefaultMode>;
+export declare function createBinderIncludingFunctions<T>(value: T, update?: binderUtils.UpdateBinder<T, binderMode.IncludeFunctionsMode>, initialize?: binderUtils.InitializeValueBinder<binderMode.IncludeFunctionsMode>): Binder<T, binderMode.IncludeFunctionsMode>;
+export declare function createPreInitializedBinder<T>(value: T, update?: binderUtils.UpdateBinder<T, binderMode.PreInitializedMode>, initialize?: binderUtils.InitializeValueBinder<binderMode.PreInitializedMode>): Binder<T, binderMode.PreInitializedMode>;
+export declare function createPreInitializedBinderIncludingFunctions<T>(value: T, update?: binderUtils.UpdateBinder<T, binderMode.PreInitializedAndIncludeFunctionsMode>, initialize?: binderUtils.InitializeValueBinder<binderMode.PreInitializedAndIncludeFunctionsMode>): Binder<T, binderMode.PreInitializedAndIncludeFunctionsMode>;
 
-    get<Q>(this: ArrayBinder<Q[]>, index: number): ArrayBinder<Q>;
-    get<Q>(this: ArrayBinder<ObjectMap<Q>>, index: number): MapBinder<Q>;
-    get<Q extends Object>(this: ArrayBinder<Q>, index: number): ObjectBinder<Q>;
-    get(index: number): Binder<T>;
+export declare function withBinderMode<MODE>(): binderUtils.BinderCreator<MODE>;
+export declare function withSameBinderMode<MODE>(otherBinder: Binder<any, MODE>): binderUtils.BinderCreator<MODE>;
 
-    set(index: number, value: T): ArrayBinder<T>;
+export declare function isBinder<T, Q = any, MODE = binderMode.DefaultMode>(maybeBinder: T | Binder<Q, MODE>): maybeBinder is Binder<Q, MODE>;
 
-    // Basic array mutator
-    splice(start: number, deleteCount?: number): ArrayBinder<T>;
-    splice(start: number, deleteCount: number, ...items: T[]): ArrayBinder<T>;
-
-    // Array mutator
-    pop(): ArrayBinder<T>;
-    push(...items: T[]): ArrayBinder<T>;
-    shift(): ArrayBinder<T>;
-    unshift(...items: T[]): ArrayBinder<T>;
-
-    // Extra mutator
-    insertAt(index: number, value: T): ArrayBinder<T>;
-    removeAt(index: number, deleteCount?: number): ArrayBinder<T>;
-
-    // Other methods
-    concat(...items: ArrayBinder<T>[]): Binder<T>[];
-    concat(...items: (Binder<T> | Binder<T>[] | ReadonlyArray<Binder<T> | ArrayBinder<T>>)[]): Binder<T>[];
-    join(separator?: string): string;
-    slice(start?: number, end?: number): Binder<T>[];
-
-    // Search in an Array
-    includes(searchElement: T, fromIndex?: number): boolean;
-    includes(searchElement: Binder<T>, fromIndex?: number): boolean;
-    indexOf(searchElement: T, fromIndex?: number): number;
-    indexOf(searchElement: Binder<T>, fromIndex?: number): number;
-    lastIndexOf(searchElement: T, fromIndex?: number): number;
-    lastIndexOf(searchElement: Binder<T>, fromIndex?: number): number;
-
-    // Iterator
-
-    forEach(this: ArrayBinder<boolean>, callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach(this: ArrayBinder<number>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach(this: ArrayBinder<string>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach(this: ArrayBinder<Date>,    callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach<Q>(this: ArrayBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach<Q>(this: ArrayBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach<Q extends Object>(this: ArrayBinder<Q>, callbackfn: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-    forEach(callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => void): void;
-
-    every(this: ArrayBinder<boolean>, callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every(this: ArrayBinder<number>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every(this: ArrayBinder<string>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every(this: ArrayBinder<Date>,    callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every<Q>(this: ArrayBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every<Q>(this: ArrayBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every<Q extends Object>(this: ArrayBinder<Q>, callbackfn: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    every(callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-
-    some(this: ArrayBinder<boolean>, callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some(this: ArrayBinder<number>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some(this: ArrayBinder<string>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some(this: ArrayBinder<Date>,    callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some<Q>(this: ArrayBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some<Q>(this: ArrayBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some<Q extends Object>(this: ArrayBinder<Q>, callbackfn: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-    some(callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): boolean;
-
-    map<U>(this: ArrayBinder<boolean>, callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U>(this: ArrayBinder<number>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U>(this: ArrayBinder<string>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U>(this: ArrayBinder<Date>,    callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U, Q>(this: ArrayBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U, Q>(this: ArrayBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U, Q extends Object>(this: ArrayBinder<Q>, callbackfn: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-    map<U>(callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => U): U[];
-
-    filter(this: ArrayBinder<boolean>, callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T>[];
-    filter(this: ArrayBinder<number>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T>[];
-    filter(this: ArrayBinder<string>,  callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T>[];
-    filter(this: ArrayBinder<Date>,    callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T>[];
-    filter<Q>(this: ArrayBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): ArrayBinder<Q>[];
-    filter<Q>(this: ArrayBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): MapBinder<Q>[];
-    filter<Q extends Object>(this: ArrayBinder<Q>, callbackfn: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): ObjectBinder<Q>[];
-    filter(callbackfn: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T>[];
-
-    find(this: ArrayBinder<boolean>, predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T> | undefined;
-    find(this: ArrayBinder<number>,  predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T> | undefined;
-    find(this: ArrayBinder<string>,  predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T> | undefined;
-    find(this: ArrayBinder<Date>,    predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T> | undefined;
-    find<Q>(this: ArrayBinder<Q[]>, predicate: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): ArrayBinder<Q> | undefined;
-    find<Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): MapBinder<Q> | undefined;
-    find<Q extends Object>(this: ArrayBinder<Q>, predicate: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): ObjectBinder<Q> | undefined;
-    find(predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): Binder<T> | undefined;
-
-    findIndex(this: ArrayBinder<boolean>, predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex(this: ArrayBinder<number>,  predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex(this: ArrayBinder<string>,  predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex(this: ArrayBinder<Date>,    predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex<Q>(this: ArrayBinder<Q[]>, predicate: (value: ArrayBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex<Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (value: MapBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex<Q extends Object>(this: ArrayBinder<Q>, predicate: (value: ObjectBinder<Q>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-    findIndex(predicate: (value: Binder<T>, index: number, arrayBinder: ArrayBinder<T>) => boolean): number;
-
-    reduce(this: ArrayBinder<boolean>, predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduce(this: ArrayBinder<number>,  predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduce(this: ArrayBinder<string>,  predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduce(this: ArrayBinder<Date>,    predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduce<Q>(this: ArrayBinder<Q[]>, predicate: (previousValue: ArrayBinder<Q>, currentValue: ArrayBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => ArrayBinder<Q>, initialValue?: ArrayBinder<Q>): ArrayBinder<Q>;
-    reduce<Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (previousValue: MapBinder<Q>, currentValue: MapBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => MapBinder<Q>, initialValue?: MapBinder<Q>): MapBinder<Q>;
-    reduce<Q extends Object>(this: ArrayBinder<Q>, predicate: (previousValue: ObjectBinder<Q>, currentValue: ObjectBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => ObjectBinder<Q>, initialValue?: ObjectBinder<Q>): ObjectBinder<Q>;
-    reduce(predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-
-    reduce<U>(this: ArrayBinder<boolean>, predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U>(this: ArrayBinder<number>,  predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U>(this: ArrayBinder<string>,  predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U>(this: ArrayBinder<Date>,    predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U, Q>(this: ArrayBinder<Q[]>, predicate: (previousValue: U, currentValue: ArrayBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U, Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (previousValue: U, currentValue: MapBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U, Q extends Object>(this: ArrayBinder<Q>, predicate: (previousValue: U, currentValue: ObjectBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduce<U>(predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-
-    reduceRight(this: ArrayBinder<boolean>, predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduceRight(this: ArrayBinder<number>,  predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduceRight(this: ArrayBinder<string>,  predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduceRight(this: ArrayBinder<Date>,    predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-    reduceRight<Q>(this: ArrayBinder<Q[]>, predicate: (previousValue: ArrayBinder<Q>, currentValue: ArrayBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => ArrayBinder<Q>, initialValue?: ArrayBinder<Q>): ArrayBinder<Q>;
-    reduceRight<Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (previousValue: MapBinder<Q>, currentValue: MapBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => MapBinder<Q>, initialValue?: MapBinder<Q>): MapBinder<Q>;
-    reduceRight<Q extends Object>(this: ArrayBinder<Q>, predicate: (previousValue: ObjectBinder<Q>, currentValue: ObjectBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => ObjectBinder<Q>, initialValue?: ObjectBinder<Q>): ObjectBinder<Q>;
-    reduceRight(predicate: (previousValue: Binder<T>, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => Binder<T>, initialValue?: Binder<T>): Binder<T>;
-
-    reduceRight<U>(this: ArrayBinder<boolean>, predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U>(this: ArrayBinder<number>,  predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U>(this: ArrayBinder<string>,  predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U>(this: ArrayBinder<Date>,    predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U, Q>(this: ArrayBinder<Q[]>, predicate: (previousValue: U, currentValue: ArrayBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U, Q>(this: ArrayBinder<ObjectMap<Q>>, predicate: (previousValue: U, currentValue: MapBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U, Q extends Object>(this: ArrayBinder<Q>, predicate: (previousValue: U, currentValue: ObjectBinder<Q>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-    reduceRight<U>(predicate: (previousValue: U, currentValue: Binder<T>, currentIndex: number, arrayBinder: ArrayBinder<T>) => U, initialValue: U): U;
-}
-
-export type ObjectBinderByKey<T> = {
-    readonly [K in keyof T]: ObjectBinder<T[K]>;
-    // Key get and set: not available in order to avoid conflicts with false object binders
-}
-export type ObjectBinder<T> = Binder<T> & ObjectBinderByKey<T>;
-
-export interface ObjectMap<I> {
-    [key: string]: I | undefined;
-}
-
-export declare interface MapBinder<T> extends Binder<ObjectMap<T>> {
-    size: number;
-
-    get(this: MapBinder<boolean>, key: string): Binder<boolean> | undefined;
-    get(this: MapBinder<number>, key: string): Binder<number> | undefined;
-    get(this: MapBinder<string>, key: string): Binder<string> | undefined;
-    get(this: MapBinder<Date>, key: string): Binder<Date> | undefined;
-
-    get<Q>(this: MapBinder<Q[]>, key: string): ArrayBinder<Q> | undefined;
-    get<Q>(this: MapBinder<ObjectMap<Q>>, key: string): MapBinder<Q> | undefined;
-    get<Q extends Object>(this: MapBinder<Q>, key: string): ObjectBinder<Q> | undefined;
-    get(key: string): Binder<T> | undefined;
-
-    set(key: string, value: T): MapBinder<T>;
-    
-    clear(): MapBinder<T>;
-    delete(key: string): MapBinder<T>;
-    has(key: string): boolean;
-
-    forEach(this: MapBinder<boolean>, callbackfn: (value: Binder<T>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach(this: MapBinder<number>,  callbackfn: (value: Binder<T>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach(this: MapBinder<string>,  callbackfn: (value: Binder<T>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach(this: MapBinder<Date>,    callbackfn: (value: Binder<T>, key: string, mapBinder: MapBinder<T>) => void): void;
-
-    forEach<Q>(this: MapBinder<Q[]>, callbackfn: (value: ArrayBinder<Q>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach<Q>(this: MapBinder<ObjectMap<Q>>, callbackfn: (value: MapBinder<Q>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach<Q extends Object>(this: MapBinder<Q>, callbackfn: (value: ObjectBinder<Q>, key: string, mapBinder: MapBinder<T>) => void): void;
-    forEach(callbackfn: (value: Binder<T>, key: string, mapBinder: MapBinder<T>) => void): void;
-}
-
-export type UpdateBinder<T> =       (newRootBinder: Binder<T>,       newBinder: Binder<any>, oldBinder: Binder<any>) => void
-export type UpdateArrayBinder<T> =  (newRootBinder: ArrayBinder<T>,  newBinder: Binder<any>, oldBinder: Binder<any>) => void
-export type UpdateObjectBinder<T> = (newRootBinder: ObjectBinder<T>, newBinder: Binder<any>, oldBinder: Binder<any>) => void
-export type UpdateMapBinder<T> =    (newRootBinder: MapBinder<T>,    newBinder: Binder<any>, oldBinder: Binder<any>) => void
-
-export type InitializeValueBinder = (newValue: any, oldBinder: Binder<any>) => any
-
-export declare function createBinder(value: boolean, update?: UpdateBinder<boolean>, initialize?: InitializeValueBinder): Binder<boolean>;
-export declare function createBinder(value: number,  update?: UpdateBinder<number>,  initialize?: InitializeValueBinder): Binder<number>;
-export declare function createBinder(value: string,  update?: UpdateBinder<string>,  initialize?: InitializeValueBinder): Binder<string>;
-export declare function createBinder(value: Date,    update?: UpdateBinder<Date>,    initialize?: InitializeValueBinder): Binder<Date>;
-
-export declare function createBinder<T>(value: T[],  update?: UpdateArrayBinder<T>,  initialize?: InitializeValueBinder): ArrayBinder<T>;
-export declare function createBinder<T>(value: ObjectMap<T>, update?: UpdateMapBinder<T>, initialize?: InitializeValueBinder): MapBinder<T>;
-export declare function createBinder<T extends Object>(value: T, update?: UpdateObjectBinder<T>, initialize?: InitializeValueBinder): ObjectBinder<T>;
-
-export declare function createBinder<T>(value: T, update?: UpdateBinder<T>, initialize?: InitializeValueBinder): Binder<T>;
-
-export interface DerivedBinderFrom {
-    sourceBinder: Binder<any>
-    createDerivedBinder: (sourceBinder: Binder<any>) => Binder<any>
-    setSourceValue: (sourceBinder: Binder<any>, newDerivedBinder: Binder<any>) => Binder<any>
+export declare function deriveBinderFrom<SOURCE, DERIVED, MODE_SOURCE, MODE_TARGET>(
+    sourceBinder: Binder<SOURCE, MODE_SOURCE>,
+    createDerivedBinder: (sourceBinder: Binder<SOURCE, MODE_SOURCE>) => Binder<DERIVED, MODE_TARGET>,
+    setSourceValue: (sourceBinder: Binder<SOURCE, MODE_SOURCE>, newDerivedBinder: Binder<DERIVED, MODE_TARGET>) => Binder<SOURCE, MODE_SOURCE>,
     derivationName: string
+): Binder<DERIVED, MODE_TARGET>;
+
+export declare function notBinder<MODE>(source: Binder<boolean, MODE>): Binder<boolean, MODE>;
+export declare var inheritedExtras: string[];
+
+/* Compatibility definitions */
+export type ArrayBinder<T, MODE=binderMode.DefaultMode> = Binder<T[], MODE>;
+export type ObjectBinder<T/* extends object *//*commented for compatibity reason*/, MODE=binderMode.DefaultMode> = Binder<T, MODE>;
+export type MapBinder<T, MODE=binderMode.DefaultMode> = Binder<ObjectMap<T>, MODE>;
+
+export declare module binderMode {
+    export type DefaultMode = '' & 'Default';
+    export type PreInitializedMode = DefaultMode & 'PreInitialized';
+    export type IncludeFunctionsMode = DefaultMode & 'IncludeFunctions';
+    export type PreInitializedAndIncludeFunctionsMode = PreInitializedMode & IncludeFunctionsMode;
 }
 
-export declare function deriveBinderFrom<SOURCE, DERIVED>(
-    sourceBinder: Binder<SOURCE>,
-    createDerivedBinder: (sourceBinder: Binder<SOURCE>) => Binder<DERIVED>,
-    setSourceValue: (sourceBinder: Binder<SOURCE>, newDerivedBinder: Binder<DERIVED>) => Binder<SOURCE>,
-    derivationName: string
-): Binder<DERIVED>
+/*
+ * Utils types, It is not the intention that you have have your own variables explicitly typed with this types
+ * This definitions can appear in the public interfaces
+ */
+declare module binderUtils {
+    type UpdateBinder<T, MODE> = (newRootBinder: Binder<T, MODE>, newBinder: Binder<any, MODE>, oldBinder: Binder<any, MODE>) => void;
+    type InitializeValueBinder<MODE> = (newValue: any, oldBinder: Binder<any, MODE>) => any;
 
-export declare function notBinder(source: Binder<boolean>): Binder<boolean>
-export declare var inheritedExtras: string[]
+    interface DerivedBinderFrom {
+        sourceBinder: Binder<any, any>
+        createDerivedBinder: (sourceBinder: Binder<any, any>) => Binder<any, any>
+        setSourceValue: (sourceBinder: Binder<any, any>, newDerivedBinder: Binder<any, any>) => Binder<any, any>
+        derivationName: string
+    }
+
+    interface BinderCreator<MODE> {
+        createBinder<T>(value: T, update?: UpdateBinder<T, MODE>, initialize?: InitializeValueBinder<MODE>): Binder<T, MODE>
+    }
+
+    type AbstractBinder<T, MODE=binderMode.DefaultMode> = binderInternals.InternalBaseBinder<T, MODE> & binderInternals.InternalAbstractBinder<T, MODE>;
+    type AnyObjectBinder<MODE=binderMode.DefaultMode> = binderInternals.InternalBaseBinder<any, MODE> & binderInternals.InternalAnyObjectBinder<MODE>;
+}
+
+/*
+ * Internal types, these types are not for depend directly in the code
+ */
+declare module binderInternals {
+    type KeyOfExcludingFuntions<T> = ({ [K in keyof T]-?: T[K] extends Function ? never : K })[keyof T];
+
+    /*
+     * Join of the type of the diffent propesties in the object
+     */
+    type ValuesTypes<T, KEYS extends keyof T> = ({ [K in keyof T]: T[K]})[KEYS];
+
+    /*
+     * MandatoryProperties retunrs never and OptionalProperties returns all properties 
+     * when strictNullCheck is not enabled  
+     */
+    type ObjectKeysAux<T, KEYS extends keyof T> = ({ [K in KEYS]: T[K] extends never ? never : K });
+    type MandatoryPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: VarianceIn<T[K]> extends VarianceIn<undefined> ? never : K })[KEYS];
+    type OptionalPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: VarianceIn<T[K]> extends VarianceIn<undefined> ? K : never })[KEYS];
+    type MandatoryProperties<T, KEYS extends keyof T> = MandatoryPropertiesAux<ObjectKeysAux<T, KEYS>, KEYS>;
+    type OptionalProperties<T, KEYS extends keyof T> = OptionalPropertiesAux<ObjectKeysAux<T, KEYS>, KEYS>;
+
+    type VarianceInOut<T> = { _variance_in_out(arg: T): T };
+    type VarianceIn<T> = { _variance_in(arg: T): void };
+    type VarianceOut<T> = { _variance_out(): T };
+
+    type RequiredType<T> = T extends null | undefined ? never : T;
+
+    type TypeWhenAny<T, Twhen, Telse> = VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? Twhen : Telse;
+    type TypeWhenArray<T, Twhen, Telse> = VarianceInOut<T> extends VarianceInOut<Array<infer Q>> ? Twhen : Telse;
+
+    class InternalBaseBinder<T, MODE> {
+        private _mode : MODE;
+        private _value : T;
+
+        // Cast functions
+        // This methos must be keeped in this class instead of be placed in InternalAbstractBinder to allow 
+        // asign to binderUtils.AnyObjectBinder, Binder<any[]> and Binder<ObjectMap<any>> from the no any version
+        isObjectBinder<Q extends T>(): this is TypeWhenAny<T, binderUtils.AnyObjectBinder<MODE>, Binder<TypeWhenAny<T, undefined, Q>, MODE>>;
+        isMapBinder<Q extends T>(): this is TypeWhenAny<T, Binder<ObjectMap<any>, MODE>, Binder<Q, MODE>>;
+        isArrayBinder<Q extends T>(): this is TypeWhenAny<T, Binder<any[], MODE>, Binder<Q, MODE>>;
+    }
+
+    /*
+     * Due to the bug
+     * https://github.com/Microsoft/TypeScript/issues/21592
+     * tha causes 'Excessive stack depth comparing types' error,
+     * there are some restrictions:
+     * - In the type Binder<SomeType[][]> it is not posible to use use the
+     *   indexer syntax to access to the indices in the firt array, it returns an 
+     *   abstract binder instead of the proper binder type, you must
+     *   use the get method instead.
+     * - There is a different type between the object of a concrete type and
+     *   the any type.
+     * - The concat method in the binder of an array receive ValueBinder instead
+     *   Binder
+     * - All methods that receives o returns a binder uses a generic argument Q
+     *   (and sometimes QR) even when in the code looks that make no sense
+     */
+
+    interface InternalAbstractBinder<T, MODE> {
+        getValue(): T;
+        setValue(value: T, force?: boolean): this;
+
+        toString(): string;
+        toLocaleString(locales?: string | string[], options?: any): string;
+
+        // Additional information
+        getExtras(): any;
+        getParent(): Binder<any, MODE> | null;
+        getKey(): string | number | null;
+        isValidBinder(): boolean;
+        getDerivedFrom(): binderUtils.DerivedBinderFrom | null;
+
+        // advanced updates
+        updateExtras(newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }, force?: boolean): this;
+        setValueAndUpdateExtras(value: T, newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }, force?: boolean): this;
+        updateExtrasInCurrentBinder(newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }): void;
+
+        // Cast functions
+        /*keeped for compatibility reasons*/ _<Q extends T>(): Binder<Q, MODE>;
+
+        hasValue<Q extends T>(): this is Binder<binderInternals.RequiredType<Q>, MODE>;
+
+        // Binder type information
+        isValueBinder<Q extends T>(): this is Binder<Q, MODE>;
+    }
+
+    interface InternalValueBinder<T, MODE> extends InternalAbstractBinder<T, MODE> {
+    }
+
+    interface InternalMapBinder<T, MODE> extends InternalAbstractBinder<ObjectMap<T>, MODE> {
+        size: number;
+
+        get<Q extends T>(key: string): Binder<Q, MODE> | undefined;
+        set<Q extends T>(key: string, value: Q): this;
+
+        clear(): this;
+        delete(key: string): this;
+        has(key: string): boolean;
+
+        forEach<Q extends T>(callbackfn: (value: Binder<Q, MODE>, key: string, mapBinder: this) => void): void;
+    }
+
+    interface InternalAnyMapBinder<MODE> extends InternalAbstractBinder<ObjectMap<any>, MODE> {
+        size: number;
+
+        get(key: string): Binder<any, MODE> | undefined;
+        set(key: string, value: any): this;
+
+        clear(): this;
+        delete(key: string): this;
+        has(key: string): boolean;
+
+        forEach(callbackfn: (value: Binder<any, MODE>, key: string, mapBinder: this) => void): void;
+    }
+
+    interface InternalArrayBinder<T, MODE> extends InternalAbstractBinder<T[], MODE> {
+        length: number;
+        //readonly [index: number]: Binder<T, MODE>; // Not suported due the mentioned bug
+        readonly [index: number]: TypeWhenArray<T, binderUtils.AbstractBinder<T>, Binder<TypeWhenArray<T, undefined, T>, MODE>>;
+
+        get<Q extends T>(index: number): Binder<Q, MODE>;
+        set<Q extends T>(index: number, value: Q): this;
+
+        // Basic array mutator
+        splice(start: number, deleteCount?: number): this;
+        splice(start: number, deleteCount: number, ...items: T[]): this;
+
+        // Array mutator
+        pop(): this;
+        push(...items: T[]): this;
+        shift(): this;
+        unshift(...items: T[]): this;
+
+        // Extra mutator
+        insertAt(index: number, value: T): this;
+        removeAt(index: number, deleteCount?: number): this;
+
+        // Other methods
+        concat<Q extends T, QR extends T>(...items: (binderUtils.AbstractBinder<Q[], MODE> | binderUtils.AbstractBinder<Q, MODE> | binderUtils.AbstractBinder<Q, MODE>[] | ReadonlyArray<binderUtils.AbstractBinder<Q, MODE>>)[]): Binder<QR, MODE>[];
+        join(separator?: string): string;
+        slice<Q extends T>(start?: number, end?: number): Binder<Q, MODE>[];
+
+        // Search in an Array
+        includes(searchElement: T, fromIndex?: number): boolean;
+        includes<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): boolean;
+        indexOf(searchElement: T, fromIndex?: number): number;
+        indexOf<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): number;
+        lastIndexOf(searchElement: T, fromIndex?: number): number;
+        lastIndexOf<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): number;
+
+        // Iterator
+        forEach<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => void): void;
+        every<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        some<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        map<U, Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => U): U[];
+        filter<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): Binder<Q, MODE>[];
+        find<Q extends T>(predicate: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): Binder<Q, MODE> | undefined;
+        findIndex<Q extends T>(predicate: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): number;
+        reduce<Q extends T>(predicate: (previousValue: Binder<Q, MODE>, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => Binder<Q, MODE>, initialValue?: Binder<Q, MODE>): Binder<Q, MODE>;
+        reduce<U, Q extends T>(predicate: (previousValue: U, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+        reduceRight<Q extends T>(predicate: (previousValue: Binder<Q, MODE>, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => Binder<Q, MODE>, initialValue?: Binder<Q, MODE>): Binder<Q, MODE>;
+        reduceRight<U, Q extends T>(predicate: (previousValue: U, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+    }
+
+    interface InternalAnyArrayBinder<MODE> extends InternalAbstractBinder<any[], MODE> {
+        length: number;
+        readonly [index: number]: Binder<any, MODE>;
+
+        get(index: number): Binder<any, MODE>;
+        set(index: number, value: any): this;
+
+        // Basic array mutator
+        splice(start: number, deleteCount?: number): this;
+        splice(start: number, deleteCount: number, ...items: any[]): this;
+
+        // Array mutator
+        pop(): this;
+        push(...items: any[]): this;
+        shift(): this;
+        unshift(...items: any[]): this;
+
+        // Extra mutator
+        insertAt(index: number, value: any): this;
+        removeAt(index: number, deleteCount?: number): this;
+
+        // Other methods
+        concat(...items: (binderUtils.AbstractBinder<any[], MODE> | binderUtils.AbstractBinder<any, MODE> | binderUtils.AbstractBinder<any, MODE>[] | ReadonlyArray<binderUtils.AbstractBinder<any, MODE>>)[]): Binder<any, MODE>[];
+        join(separator?: string): string;
+        slice(start?: number, end?: number): Binder<any, MODE>[];
+
+        // Search in an Array
+        includes(searchElement: any, fromIndex?: number): boolean;
+        includes(searchElement: Binder<any, MODE>, fromIndex?: number): boolean;
+        indexOf(searchElement: any, fromIndex?: number): number;
+        indexOf(searchElement: Binder<any, MODE>, fromIndex?: number): number;
+        lastIndexOf(searchElement: any, fromIndex?: number): number;
+        lastIndexOf(searchElement: Binder<any, MODE>, fromIndex?: number): number;
+
+        // Iterator
+        forEach(callbackfn: (value: Binder<any, MODE>, index: number, arrayBinder: this) => void): void;
+        every(callbackfn: (value: Binder<any, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        some(callbackfn: (value: Binder<any, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        map<U>(callbackfn: (value: Binder<any, MODE>, index: number, arrayBinder: this) => U): U[];
+        filter(callbackfn: (value: Binder<any, MODE>, index: number, arrayBinder: this) => boolean): Binder<any, MODE>[];
+        find(predicate: (value: Binder<any, MODE>, index: number, arrayBinder: this) => boolean): Binder<any, MODE> | undefined;
+        findIndex(predicate: (value: Binder<any, MODE>, index: number, arrayBinder: this) => boolean): number;
+        reduce(predicate: (previousValue: Binder<any, MODE>, currentValue: Binder<any, MODE>, currentIndex: number, arrayBinder: this) => Binder<any, MODE>, initialValue?: Binder<any, MODE>): Binder<any, MODE>;
+        reduce<U>(predicate: (previousValue: U, currentValue: Binder<any, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+        reduceRight(predicate: (previousValue: Binder<any, MODE>, currentValue: Binder<any, MODE>, currentIndex: number, arrayBinder: this) => Binder<any, MODE>, initialValue?: Binder<any, MODE>): Binder<any, MODE>;
+        reduceRight<U>(predicate: (previousValue: U, currentValue: Binder<any, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+    }
+
+    interface InternalObjectBinder<T, MANDATORYKEYS extends keyof T, KEYS extends keyof T, MODE> extends InternalAbstractBinder<T, MODE> {
+        get<KEY extends MANDATORYKEYS, Q extends T[KEY]>(key: KEY): Binder<Q, MODE>;
+        get<KEY extends KEYS, Q extends T[KEY]>(key: KEY): Binder<Q, MODE> | undefined;
+        set<KEY extends KEYS>(key: KEY, value: T[KEY]): this;
+
+        delete(key: OptionalProperties<T, KEYS>): this;
+        has(key: KEYS): boolean;
+
+        // forEach(callbackfn: (value: Binder<T, MODE>, key: KEYS, objectBinder: this) => void): void; // it can't be because it doesn't allows the mode overload
+        forEach<Q extends T>(callbackfn: (value: Binder<ValuesTypes<Q, KEYS>, MODE>, key: keyof T, objectBinder: this) => void): void;
+    }
+
+    interface InternalAnyObjectBinder<MODE> extends InternalAbstractBinder<any, MODE> {
+        get(key: string): Binder<any, MODE> | undefined;
+        set(key: string, value: any): this;
+
+        delete(key: any): this;
+        has(key: any): boolean;
+
+        // forEach(callbackfn: (value: Binder<T, MODE>, key: KEYS, objectBinder: this) => void): void; // it can't be because it doesn't allows the mode overload
+        forEach(callbackfn: (value: Binder<any, MODE>, key: string, objectBinder: this) => void): void;
+    }
+
+    /*
+     * Binder object with optional keys as optionals
+     */
+    type InternalObjectBinderOptionalKeys<T, KEYS extends keyof T, MODE> = {
+        readonly [K in KEYS]/*-?*/: Binder<T[K], MODE>;
+        /*
+         * Optional properties are not marked as required because the binder create the property
+         * binder if the entry exists in the object
+         */
+    }
+
+    /*
+     * Binder object with optional keys as optionals
+     */
+    type InternalObjectBinderAllKeys<T, KEYS extends keyof T, MODE> = {
+        readonly [K in KEYS]-?: Binder<T[K], MODE>;
+        /*
+         * Optional properties are marked as required; the value must be preinitialized
+         */
+    }
+
+    type AllowNullOrUndefined<T> = VarianceIn<String> extends VarianceIn<null> ? 'no' /*strictNullCheckDisabled*/
+        : null extends T ? 'yes' : undefined extends T ? 'yes' : 'no';
+
+    type InternalBinder<T, MODE> =
+        VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? InternalValueBinder<any, MODE> :
+        'yes' extends AllowNullOrUndefined<T> ? InternalValueBinder<T, MODE> :
+        VarianceInOut<T> extends VarianceInOut<Function> ? InternalValueBinder<T, MODE> :
+        VarianceInOut<T> extends VarianceInOut<true | false> ? InternalValueBinder<boolean, MODE> :
+        VarianceInOut<T> extends VarianceInOut<boolean> ? InternalValueBinder<boolean, MODE> :
+        VarianceInOut<T> extends VarianceInOut<Boolean> ? InternalValueBinder<Boolean, MODE> :
+        VarianceInOut<T> extends VarianceInOut<number> ? InternalValueBinder<number, MODE> :
+        VarianceInOut<T> extends VarianceInOut<Number> ? InternalValueBinder<Number, MODE> :
+        VarianceInOut<T> extends VarianceInOut<string> ? InternalValueBinder<string, MODE> :
+        VarianceInOut<T> extends VarianceInOut<String> ? InternalValueBinder<String, MODE> :
+        VarianceInOut<T> extends VarianceInOut<Date> ? InternalValueBinder<Date, MODE> :
+        VarianceInOut<T> extends VarianceInOut<Array<infer Q>> ? (
+            VarianceInOut<Q> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyArrayBinder<MODE> : InternalArrayBinder<Q, MODE>
+        ) :
+        VarianceInOut<T> extends VarianceInOut<ObjectMap<infer Q>> ? (
+            VarianceInOut<Q> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyMapBinder<MODE> : InternalMapBinder<Q, MODE>
+        ) :
+        VarianceOut<T> extends VarianceOut<object> ? (
+            VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyObjectBinder<MODE> :
+            VarianceInOut<{}> extends VarianceInOut<T> ? InternalValueBinder<T, MODE> :
+            VarianceInOut<MODE> extends VarianceInOut<'__binder_any_option__'> ?
+                /*ObjectBinder of any mode*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE> :
+            VarianceOut<MODE> extends VarianceOut<'PreInitialized'> ?
+            (VarianceOut<MODE> extends VarianceOut<'IncludeFunctions'> ?
+                /*PFObjectBinder*/ InternalObjectBinder<T, keyof T, keyof T, MODE> & InternalObjectBinderAllKeys<T, keyof T, MODE> :
+                /*PObjectBinder*/ InternalObjectBinder<T, keyof T, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderAllKeys<T, KeyOfExcludingFuntions<T>, MODE>
+            ) :
+            (VarianceOut<MODE> extends VarianceOut<'IncludeFunctions'> ?
+                /*FObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, keyof T>, keyof T, MODE> & InternalObjectBinderOptionalKeys<T, keyof T, MODE> :
+                /*ObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE>
+            )
+        ) :
+        InternalValueBinder<T, MODE>;
+}

@@ -3,12 +3,8 @@ import {createBinder, createBinderIncludingFunctions, createPreInitializedBinder
 /*
  * Test definition
  */
-declare interface A {
-    a: number
-}
-
-declare type Value = A | undefined | null
-declare type DefinedValue = A
+declare type Value = any
+declare type DefinedValue = any
 declare type BinderType<T> = Binder<T>
 
 declare type ValueBinder = BinderType<Value>
@@ -511,15 +507,15 @@ if (isBinder(mvb)) {
 }
 
 if (isBinder(mvpb)) {
-    vpb = mvpb
+    //vpb = mvpb // when any it is not possible to infer the mode
 }
 
 if (isBinder(mvpfb)) {
-    vpfb = mvpfb
+    //vpfb = mvpfb // when any it is not possible to infer the mode
 }
 
 if (isBinder(mvfb)) {
-    vfb = mvfb
+    //vfb = mvfb // when any it is not possible to infer the mode
 }
 
 interface ValueObject {

@@ -25,6 +25,9 @@ function createAbstractBinderTests(updater) {
     test('is binder', function() {
         expect(updater.getBinder()).toBeInstanceOf(binder);
     });
+    test('is binder function', function() {
+        expect(binder.isBinder(updater.getBinder())).toBe(true);
+    });
     test('getValue method', function() {
         expect(updater.getBinder().getValue()).toBe(updater.initialValue);
     });
