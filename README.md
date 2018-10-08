@@ -6,11 +6,11 @@
 
 The binder handles the contained data in an immutable way, as well, the binder itself is an immutable object; every time you update a binder a new binder is created. Immutable binders allow to pass it as parameter in frameworks such as **react** where you are expecting immutable data.
 
-**immutable-binder** allows you to use **TypeScript** without losing the type validations, in other words, your binders are **full typed** in TypeScript.
+**immutable-binder** allows you to use **TypeScript** without losing the type validations, in other words, your binders are **full typed** in TypeScript (it requires TypeScript 2.8 or newer).
 
 With **immutable-binder** you can have the advantages of the two-way data bindings in an immutable environment (like React) running in a safe and immutable way.
 
-The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) with near to 600 loc in JavaScript and 250 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
+The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) with near to 600 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
 
 # Summary
 
@@ -21,9 +21,10 @@ The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) 
 		* [Basic methods](#basic-methods)
 		* [Additional methods](#additional-methods)
 	* [Object binder](#object-binder)
+		* [Methods](#methods)
 	* [Map binder](#map-binder)
 		* [Properties](#properties)
-		* [Methods](#methods)
+		* [Methods](#methods-1)
 		* [Unsupported methods](#unsupported-methods)
 	* [Array Binder](#array-binder)
 		* [Properties](#properties-1)
@@ -43,6 +44,12 @@ The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) 
 	* [Recovering the derivation information](#recovering-the-derivation-information)
 	* [Automatically copied extras to a derived binder](#automatically-copied-extras-to-a-derived-binder)
 * [Create a binder](#create-a-binder)
+* [TypeScript binder modes](#typescript-binder-modes)
+    * [Modes](#modes)
+    * [Create a binder with a specific mode](#create-a-binder-with-a-specific-mode)
+* [Defined types](#defined-types)
+    * [Binder aliases](#binder-aliases)
+    * [Compatibility aliases](#compatibility-aliases)
 * [Using with React](#using-with-react)
 * [Limitations](#limitations)
 * [License](#license)
@@ -151,15 +158,33 @@ This is the basic representation of any binder.
 
 - **`isMapBinder(): boolean`**: returns `true` when the contained data is an object, otherwise returns `false`. This method is similar to `isObjectBinder` but in TypeScript, when this method returns `true` the current binder is downcast to a map binder (only if the contained type is compatible).
 
-- **`_(): this`**: returns the same binder where it is invoked (return `this`). This method is useful in TypeScript because it allows to downcast a binder to object binder, map binder or array binder (if applicable).
+- **`_(): this`**: returns the same binder where it is invoked (return `this`). This method can be useful in TypeScript in rare ocations (only if you are using an array o an array) because it allows to downcast a binder to object binder, map binder or array binder (if applicable).
 
 ## Object binder
 
 When the contained value is an object, the binder is a specialised version that contains the same properties of the object, where each property is a binder with its corresponding value.
 
-**Note**: in JavaScript an object binder and map binder are the same; then you can use all the map binder methods in an object binder or access the properties with the property name like in an object binder.
+**Note**: in JavaScript an object binder and map binder are the same; then you can use all the map binder methods in an object binder or access the properties with the property name like in an object binder. In TypeScript all methods present in the map binders are included in the object binder (except `clear`), but adapted to work with objects.
 
-**Important**: if you want to modify a property value, use the method `setValue` in the binder stored in the property, or, if you are in JavaScript, use the method `set` defined in the map binder.
+**Important**: if you want to modify a property value, use the method `setValue` in the binder stored in the property, or you can use the method `set` defined in the binder.
+
+### Methods
+
+All of the following methods are supported by the `Map` type as well by a map binder. The difference with the `Map` type are the methods `set`, `clear`, and `delete` return the new binder.
+
+The supported methods are:
+
+- **`get(key: required keyof T): Binder<T[key]>`**: returns the property of key passed as argument. Returns the binder that contains the value of that property. Write `objectBinder.get('key')` is the same as `objectBinder.key`. **Note**: when the key passed by argument represents a required property this method returns always a binder.
+
+- **`get(key: not required keyof T): Binder<T[key]> | undefined`**: returns the property of key passed as argument. Returns the binder that contains the value of that property. Write `mapBinder.get('key')` is the same as `objectBinder.key`.**Note**: when the key passed by argument represents a not required property this method returns a binder or undefined.
+
+- **`set(key: keyof T, value: T[key]): ObjectBinder<T>`**:  this method allows to set the value of a specified key. This method returns the new binder that contains the updated object. This method is an alternative to: `objectBinder.key.setValue(value).getParent()` with the difference that it can handle optional properties.
+
+- **`delete(key: not required keyof T): ObjectBinder<T>`**: drops the specified key passed as argument in the binder. This method returns the new binder that contains the updated object. **Note**: In TypeScript, the key must represents a not required property.
+
+- **`has(key: keyof T): boolean`**: returns true if the key passed by arguments exists in the current binder. Otherwise, returns `false`.
+
+- **`forEach(callbackfn: (value: Binder<values types of T>, key: keyof T, mapBinder: ObjectBinder<T>) => void): void`**: this method allows to iterate over each element contained by the object binder; for each element call the function passed as argument with the binder contained in the key, the key, and the current binder.
 
 ## Map binder
 
@@ -170,12 +195,12 @@ When the contained value is an object map, a specialised binder is created; that
  An object map is any type compatible with:
  
  ```typescript
-interface ObjectMap<I> {
-    [key: string]: I | undefined;
+interface ObjectMap<T> {
+    [key: string]: T | undefined;
 }
  ```
 
-**Note**: in JavaScript an object binder and map binder are the same; then you can use all the map binder methods in an object binder or access the properties with the property name like in an object binder.
+**Note**: in JavaScript an object binder and map binder are the same; then you can use all the map binder methods in an object binder or access the properties with the property name like in an object binder. In TypeScript all methods present in the map binders are included in the object binders (except `clear`), but adapted to work with objects.
 
 ### Properties
 
@@ -187,7 +212,7 @@ All of the following methods are supported by the `Map` type as well by a map bi
 
 The supported methods are:
 
-- **`get(key: string): Binder<T> | undefined`**: returns the property of key passed as argument. Returns the binder that contains the value of that property. In JavaScript write `mapBinder.get('key')` is the same as `mapBinder.key`.
+- **`get(key: string): Binder<T> | undefined`**: returns the property of key passed as argument. Returns the binder that contains the value of that property. In JavaScript write `mapBinder.get('key')` is the same as `mapBinder.key` or `mapBinder[key]`.
 
 - **`set(key: string, value: T): MapBinder<T>`**:  this method allows to set the value of a specified key. This method returns the new binder that contains the updated object. In JavaScript this method is an alternative to: `mapBinder[key].setValue(value).getParent()`.
 
@@ -550,6 +575,99 @@ This function receives the following arguments:
 	- **`newValue`**: new value to be stored in the source binder that will originate the changes.
 	- **`oldBinder`**: old instance of the source binder node that will originate the changes.
 
+# TypeScript binder modes
+
+In TypeScript there are four different modes as you can represent an object in a binder, this modes are made fron the combinations of:
+
+- Include functions in the binder
+- All optional properties are treated as required; that means, any property like `propertyName?: propertyType` are treated as `propertyName: propertyValue | undefined`. Use this mode allows you don't be worried about the undefined properties in the binder when you use the syntax `binderOfAnObject.propertyName` because the property always will exists. **Note**: This mode requires you use an initializer function when you create the binder, this function must ensure all posible properties in the object exists (even with undefined value).
+
+## Modes
+
+|                       | **Optional properties as optional** | **Optional properties as required**                |
+|-----------------------|:-----------------------------------:|:--------------------------------------------------:|
+| **Exclude functions** | `binderMode.DefaultMode`            | `binderMode.PreInitializedMode`                    |
+| **Include functions** | `binderMode.IncludeFunctionsMode`   | `binderMode.PreInitializedAndIncludeFunctionsMode` |
+
+**Important**: Modes are used only in TypeScript as a way to control how the binder is represented. In JavaScript modes don't exists.
+
+## Create a binder with a specific mode
+
+The following functions create a binder with a specific mode:
+
+- **`createBinder(...)`**: Create a new binder using by default the mode `binderMode.DefaultMode`.
+- **`createBinderIncludingFunctions(...)`**: Create a new binder using by default the mode `binderMode.IncludeFunctionsMode`.
+- **`createPreInitializedBinder(...)`**: Create a new binder using by default the mode `binderMode.PreInitializedMode`.
+- **`createPreInitializedBinderIncludingFunctions(...)`**: Create a new binder using by default the mode `binderMode.PreInitializedAndIncludeFunctionsMode`.
+
+As well, you can use this utilities functions:
+
+- **`withBinderMode<MODE>().createBinder(...)`**: Allows to create a binder with the mode specified in the `MODE` generic argument. This method is useful when you receive the mode as a generic argument and you want to create a binder with that mode.
+- **`withSameBinderMode(otherBinder).createBinder(...)`**: Allows to create a binder with the same mode of an other binder.
+
+**Note**: These functions work in the same way as exposed in the section [Create a binder](#create-a-binder)
+
+# Defined types for TypeScript
+
+The **inmutable-binder** module defines several types:
+
+- **`ObjectMap<T>`**: This represents an object map that can contains keys with a specific value of type `T`. TypeScript definition:
+
+    ```typescript
+    interface ObjectMap<T> {
+        [key: string]: T | undefined;
+    }
+    ```
+
+- **`Binder<T, MODE=binderMode.DefaultMode>`**: This represents a binder of type `T` and it uses by default the mode `binderMode.DefaultMode`. The binder type is a dynamic type that choose the the proper type to represents de value contained by it.
+
+    **Types of binders**:
+
+    - **Abstract binder**: represents the base class of any binder.
+    - **Value binder**: represents a binder that contains a value, that is: boolean, number, string, Date, Function, null or undefined.
+    - **Array binder**: represents a binder that contains an array.
+    - **Map binder**: represents a binder that contains an `ObjectMap`.
+    - **Object binder**: represents a binder that contains an obejct.
+
+    **Note**: in JavaScript an object binder and map binder are the same.
+
+## Binder aliases
+
+There are alias to the `Binder` type where the default mode is one specific mode.
+
+|                       | **Optional properties as optional**                                  | **Optional properties as required**                                                    |
+|-----------------------|:--------------------------------------------------------------------:|:--------------------------------------------------------------------------------------:|
+| **Exclude functions** | `Binder<T, MODE=binderMode.DefaultMode>`                             | `PBinder<T, MODE=binderMode.PreInitializedMode> = Binder<T, MODE>`                     |
+| **Include functions** | `FBinder<T, MODE=binderMode.IncludeFunctionsMode  = Binder<T, MODE>` | `PFBinder<T, MODE=binderMode.PreInitializedAndIncludeFunctionsMode> = Binder<T, MODE>` |
+
+## Compatibility aliases
+
+For backward compatibility purposes, the folowing aliases are defined as well:
+
+- **`ArrayBinder<T, MODE=binderMode.DefaultMode>`**: represents a binder that contains an array of `T`. TypeScript definition:
+
+    ```typescript
+    type ArrayBinder<T, MODE=binderMode.DefaultMode> = Binder<T[], MODE>;
+    ```
+
+- **`ObjectBinder<T, MODE=binderMode.DefaultMode>`**: represents a binder that contains an object of type `T`. TypeScript definition:
+
+    ```typescript
+    type ObjectBinder<T, MODE=binderMode.DefaultMode> = Binder<T, MODE>;
+    ```
+
+- **`MapBinder<T, MODE=binderMode.DefaultMode>`**: represents a binder that contains an object of type `T`. TypeScript definition:
+
+    ```typescript
+    type MapBinder<T, MODE=binderMode.DefaultMode> = Binder<ObjectMap<T>, MODE>;
+    ```
+
+**Note**: you don't need to use this types any more, there are defined only for backward compatibility reason.
+
+## Other types
+
+All types defined inside of `binderUtils` or `binderInternals` are considered private, and your code must don't include explicit dependecy to these types.
+
 # Using with React
 
 When you use binders with React, typically, when you create the binder you store the binder in the state, and you pass the binder as props to the child components. Because each binder contains the data and the function to change it, when you use child components, you don't need to pass the data and the callback, you only need to pass the binder itself and no more, making it simpler.
@@ -621,10 +739,10 @@ class PersonEditor extends React.Component {
     }
 
     validate(binder) {
-        if (!binder.firstName.getValue()) {
+        if (!binder.firstName.hasValue()) {
             binder.firstName.updateExtrasInCurrentBinder({error: 'You must specify your first name'});
         }
-        if (!binder.lastName.getValue()) {
+        if (!binder.lastName.hasValue()) {
             binder.lastName.updateExtrasInCurrentBinder({error: 'You must specify your last name'});
         }
         var age = binder.age.getValue();
@@ -665,26 +783,13 @@ ReactDOM.render(<PersonEditor person={person}/>, mountNode);
 
 # Limitations
 
-- Only simple JavaScript are supported, more complex types like `Map`are not supported.
-- TypeScript bindings don't support `Number` (use `number` instead) or `String` (use `string` instead) or `Function`.
-- Sometimes in TypeScript it is not possible to select the proper downcast; in consequence you can get a `Binder<T>` instead the most specific type, in that case you can use the `_()` method to cast to the proper type. E.g.: 
-
-	```typescript
-	var correctTypeBinder = wrongTypeBinder._();
-	```
-
-- In TypeScript, if you try to access to an array's element through the accessor, your will get the binder without the proper downcast, instead you can use the `get` method. E.g.:
+- Only simple JavaScript are supported, more complex types like `Map` are not supported.
+- In TypeScript, if you try to access to an array's element of an array through the accessor, your will get the binder without the proper downcast, instead you can use the `get` method or use th `_()` in the resultanting type. E.g.:
 
 	```typescript
 	var wrongTypeBinder = arrayBinder[index];
-	var correctTypeBinder = arrayBinder.get(index);
-	```
-
-- In TypeScript, when you have an object with an array as property and you access the array property, you will get a binder without the proper downcast, use the `_()` method to fix it. E.g.:
-
-	```typescript
-	var wrongTypeBinder = objectBinder.arrayPropertyBinder;
-	var correctTypeBinder = objectBinder.arrayPropertyBinder._();
+    var correctTypeBinder = arrayBinder.get(index);
+    var correctTypeBinder = arrayBinder.[index]._();
 	```
 
 # License
