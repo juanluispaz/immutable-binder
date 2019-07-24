@@ -147,6 +147,17 @@ function isEqual(a, b) {
  */
 
 function setUpdater(parent, binder, key, contentUpdater) {
+    var binderUpdater = binder._$update;
+    if (binderUpdater) {
+        if (process.env.NODE_ENV !== "production") {
+            binderUpdater = binderUpdater._$proxy;
+        }
+        binderUpdater._$parent = parent;
+        binderUpdater._$key = key;
+        binderUpdater._$contentUpdater = contentUpdater
+        return;
+    }
+
     function updater(newBinder) {
         if (!updater._$validBinder) {
             throw new Error('You are trying to update an old binder');

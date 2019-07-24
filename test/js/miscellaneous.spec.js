@@ -65,3 +65,15 @@ test('class value', function() {
     expect(b.isObjectBinder()).toBe(false);
     expect(b.isArrayBinder()).toBe(false);
 });
+
+test("don't lose extra information when a sibling is updated", function() {
+    updater.updated = false;
+    var b = updater.getBinder().setValue({sa: 'aa', sb: 'bb'});
+    updater.updated = false;
+    b.sa.updateExtrasInCurrentBinder({temporal: 'tmp'}, {permanet: 'perm'});
+    b.sb.setValue('bbb');
+    updater.updated = false;
+    b = updater.getBinder();
+    expect(b.sa.getExtras().temporal).toBe('tmp');
+    expect(b.sa.getExtras().permanet).toBe('perm');
+});
