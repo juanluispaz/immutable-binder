@@ -54,3 +54,14 @@ test('withBinderMode function', function() {
 test('withSameBinderMode function', function() {
     expect(binder.withBinderMode().createBinder).toBe(binder.createBinder);
 });
+
+test('class value', function() {
+    function Klass() {}
+    updater.updated = false;
+    var b = updater.getBinder().setValue(new Klass());
+    updater.updated = false;
+    expect(b.isValueBinder()).toBe(true);
+    expect(b.isMapBinder()).toBe(false);
+    expect(b.isObjectBinder()).toBe(false);
+    expect(b.isArrayBinder()).toBe(false);
+});

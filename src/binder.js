@@ -92,15 +92,22 @@ function createBinder(value, update, initialize) {
 
 function buildBinder(value, reuseBinders) {
     ensureNoBinder(value);
-    if (Array.isArray(value)) {
+    if (value === null || value === undefined) {
+        return new ValueBinder(value);
+    } else if (Array.isArray(value)) {
         return new ArrayBinder(value, reuseBinders);
-    } else if (
-        value instanceof Date
-        || value instanceof Number
-        || value instanceof Boolean
-        || value instanceof Function
-        || value instanceof String
-        || !(value instanceof Object)) {
+    } else if (Object.getPrototypeOf(value) !== Object.prototype) {
+        /*
+         * This includes values where:
+         * value instanceof Date
+         *   || value instanceof Number
+         *   || value instanceof Boolean
+         *   || value instanceof Function
+         *   || value instanceof String
+         *   || !(value instanceof Object)
+         * 
+         * null and undefined are handled previously
+         */
         return new ValueBinder(value);
     } else {
         return new MapBinder(value, reuseBinders);
