@@ -12,6 +12,9 @@
  * - _$update(newBinder): function that must be called in order to update the value in the parent binder, receive by
  *                        argument the new binder to be used instead the current one. This function is used as the
  *                        extras object. This function can be a proxy, see proxy updater.
+ * - _$oldChildrenHaveErrors: optional boolean. If it is set to true is beacuse during the initialization of the binder
+ *                        at least one child binder contains an error setted (using setError), be careful, if the child
+ *                        is new it is not going to take in consideration.
  *
  * --------------------------------------------------------------------------------------------------------------------
  * Proxy updater
@@ -65,9 +68,15 @@
  *                                     argument in the createBinder function. This property is used to store the update
  *                                     action required by a derived binder (chained with the update function passed to
  *                                     createBinder if it is present).
+ * 
+ * To support validations, the extras object contains the following properties (marked as no enumerables):
+ * - _$error: optinoal string with the error message.
+ * - _$touchedByTheUser: optional boolean that indicate if the event onBlur happens in the editior of this binder.
+ * - _$editedByTheUser:  optional boolean that idicates if the value was edited by the user.
+ * - _$updatedChildContainsErrors: optional boolean that indicates if last updated child binder has errors.
  */
 
-var inheritedExtras = ['error'];
+var inheritedExtras = ['error', '_$error', '_$touchedByTheUser', '_$editedByTheUser'];
 
 /*
  * Utils
@@ -160,7 +169,9 @@ function setUpdater(parent, binder, key, contentUpdater) {
 
     function updater(newBinder) {
         if (!updater._$validBinder) {
-            throw new Error('You are trying to update an old binder');
+            var error = new Error('You are trying to update an old binder');
+            Object.defineProperty(error, '_$isInvalidBinder', {value: true});
+            throw error;
         }
         if (updater._$contentUpdater)  {
             return updater._$contentUpdater(updater._$key, newBinder);
@@ -174,16 +185,11 @@ function setUpdater(parent, binder, key, contentUpdater) {
     Object.defineProperty(updater, '_$contentUpdater', {value: contentUpdater, writable: true});
 
     if (process.env.NODE_ENV !== "production") {
-        var oldUpdater = binder._$update;
-        if (oldUpdater) {
-            oldUpdater._$proxy = updater;
-        } else {
             // Proxy function to allow change its content when the object is frozen
             binder._$update = function proxyUpdater(newBinder) {
                 return proxyUpdater._$proxy(newBinder);
             };
             binder._$update._$proxy = updater;
-        }
 
         Object.freeze(binder);
     } else {
@@ -211,6 +217,18 @@ function copyExtras(newBinder, oldBinder, newTemporalExtras, newPermanentExtras)
 
     for (var key in oldExtras) {
         newExtras[key] = oldExtras[key];
+    }
+
+    if (oldExtras._$editedByTheUser) {
+        Object.defineProperty(newExtras, '_$editedByTheUser', {value: true, writable: true});
+    }
+    if (oldExtras._$touchedByTheUser) {
+        Object.defineProperty(newExtras, '_$touchedByTheUser', {value: true, writable: true});
+    }
+    if (isEqual(newBinder._$value, oldBinder._$value)) {
+        if (oldExtras._$error) {
+            Object.defineProperty(newExtras, '_$error', {value: oldExtras._$error, writable: true});
+        }
     }
 
     if (newTemporalExtras) {
@@ -250,6 +268,19 @@ AbstractBinder.prototype.setValue = function (value, force) {
     return this._$setBinderValue(value);
 };
 
+AbstractBinder.prototype.setEditedValueByTheUser = function (value, force) {
+    ensureNoBinder(value);
+    var extras = this.getExtras();
+    if (isEqual(this._$value, value)) {
+        if (force) {
+            return this._$setBinderValue(value, this, {_$editedByTheUser: true});
+        } else {
+            return this;
+        }
+    }
+    return this._$setBinderValue(value, undefined, {_$editedByTheUser: true});
+};
+
 AbstractBinder.prototype._$setBinderValue = function (value, reuseBinders, newTemporalExtras, newPermanentExtras, ignoreInit) {
     if (!ignoreInit) {
         value = this._$startInit(value, this);
@@ -267,7 +298,7 @@ AbstractBinder.prototype._$setBinderValue = function (value, reuseBinders, newTe
     invalidateBinder(this);
 
     if (!ignoreInit) {
-        newBinder._$finishInit(newBinder, this);
+        newBinder._$finishInit(newBinder, this, newBinder.containsErrors(), true);
     }
 
     return newBinder;
@@ -286,15 +317,20 @@ AbstractBinder.prototype._$startInit = function (newValue, oldBinder) {
     return newValue;
 };
 
-AbstractBinder.prototype._$finishInit = function (newBinder, oldBinder) {
-    var postInit = this.getExtras()._$postInit;
+AbstractBinder.prototype._$finishInit = function (newBinder, oldBinder, containsErrors, skipError) {
+    var extras = this.getExtras();
+    if (containsErrors && !skipError) {
+        Object.defineProperty(extras, '_$updatedChildContainsErrors', {value: true});
+    }
+
+    var postInit = extras._$postInit;
     if (postInit) {
         postInit(this, newBinder, oldBinder);
     }
 
     var parent = this.getParent();
     if (parent) {
-        parent._$finishInit(newBinder, oldBinder);
+        parent._$finishInit(newBinder, oldBinder, containsErrors);
     }
 };
 
@@ -326,6 +362,13 @@ AbstractBinder.prototype.hasValue = function() {
     var value = this._$value;
     return value !== null && value !== undefined;
 };
+
+AbstractBinder.prototype.sameValue = function(value) {
+    if (value instanceof AbstractBinder) {
+        return isEqual(this._$value, value._$value)
+    }
+    return isEqual(this._$value, value)
+}
 
 AbstractBinder.prototype._ = function() {
     // Useful function to allow in typescript cast to the proper type
@@ -376,10 +419,10 @@ AbstractBinder.prototype.getDerivedFrom = function () {
 // Advanced updates
 
 AbstractBinder.prototype.updateExtras = function (newTemporalExtras, newPermanentExtras, force) {
-    return this.setValueAndUpdateExtras(this._$value, newTemporalExtras, newPermanentExtras, force);
+    return this._$setValueAndUpdateExtras(this._$value, newTemporalExtras, newTemporalExtras, newPermanentExtras, force);
 };
 
-AbstractBinder.prototype.setValueAndUpdateExtras = function (value, newTemporalExtras, newPermanentExtras, force) {
+AbstractBinder.prototype._$setValueAndUpdateExtras = function (value, newTemporalExtras, temporalExtrasToSet, newPermanentExtras, force) {
     var hasChanges = force;
     var reuseBinders = this;
     if (!hasChanges) {
@@ -405,10 +448,37 @@ AbstractBinder.prototype.setValueAndUpdateExtras = function (value, newTemporalE
         }
     }
     if (hasChanges) {
-        return this._$setBinderValue(value, reuseBinders, newTemporalExtras, newPermanentExtras);
+        return this._$setBinderValue(value, reuseBinders, temporalExtrasToSet, newPermanentExtras);
     } else {
         return this;
     }
+};
+
+AbstractBinder.prototype.setValueAndUpdateExtras = function (value, newTemporalExtras, newPermanentExtras, force) {
+    return this._$setValueAndUpdateExtras(value, newTemporalExtras, newTemporalExtras, newPermanentExtras, force);
+}
+
+AbstractBinder.prototype.setEditedValueByTheUserAndUpdateExtras = function (value, newTemporalExtras, newPermanentExtras, force) {
+    var newTemporalExtrasToSet = Object.assign({}, newTemporalExtras);
+    newTemporalExtrasToSet._$editedByTheUser = true;
+    return this._$setValueAndUpdateExtras(value, newTemporalExtras, newTemporalExtrasToSet, newPermanentExtras, force);
+};
+
+
+AbstractBinder.prototype.setValueFromDeribedBinder = function (value, deribedBinder, newTemporalExtras, newPermanentExtras) {
+    var deribedExtras = deribedBinder.getExtras();
+    var error = null;
+    if (isEqual(this._$value, value)) {
+        error = this.getError();
+    }
+    if (!error) {
+        error = deribedExtras._$error;
+    }
+    var newTemporalExtrasToSet = Object.assign({}, newTemporalExtras);
+    newTemporalExtrasToSet._$touchedByTheUser = deribedExtras._$touchedByTheUser;
+    newTemporalExtrasToSet._$editedByTheUser = deribedExtras._$editedByTheUser;
+    newTemporalExtrasToSet._$error = error;
+    return this._$setValueAndUpdateExtras(value, newTemporalExtras, newTemporalExtrasToSet, newPermanentExtras, true);
 };
 
 AbstractBinder.prototype.updateExtrasInCurrentBinder = function (newTemporalExtras, newPermanentExtras) {
@@ -444,6 +514,102 @@ AbstractBinder.prototype.isObjectBinder = function() {
 AbstractBinder.prototype.isArrayBinder = function() {
     return false;
 };
+
+// Validation utils methods
+
+AbstractBinder.prototype.getError = function() {
+    return this.getExtras()._$error || null;
+}
+
+AbstractBinder.prototype._$setError = function(errorMessage, createNewBinder) {
+    if (!errorMessage) {
+        return this;
+    }
+    if (this.getError()) {
+        return this;
+    }
+
+   
+    if (createNewBinder) {
+        try {
+            return this._$setBinderValue(this._$value, this, {_$error: errorMessage});    
+        } catch (error) {
+            if (error && error._$isInvalidBinder) {
+                Object.defineProperty(this.getExtras(), '_$error', {value: errorMessage, writable: true});
+            } else {
+                throw error;
+            }
+        }
+    } else {
+        Object.defineProperty(this.getExtras(), '_$error', {value: errorMessage, writable: true});
+    }
+    var parent = this.getParent();
+    while (parent) {
+        // This is only needed when no new binder is created
+        Object.defineProperty(parent.getExtras(), '_$updatedChildContainsErrors', {value: true});
+        parent = parent.getParent();
+    }
+    return this;
+}
+
+AbstractBinder.prototype.setError = function(error) {
+    if (error instanceof Promise) {
+        var that = this;
+        return error.then(function (errorMessage) {
+            return that._$setError(errorMessage, true);
+        }, function (caught) {
+            if (!caught) {
+                return that._$setError(caught, true);
+            } else {
+                return that._$setError('' + caught, true);
+            }
+        });
+    }
+
+    return this._$setError(error, false);
+}
+
+AbstractBinder.prototype.wasTouchedByTheUser = function() {
+    return !!this.getExtras()._$touchedByTheUser;
+}
+
+AbstractBinder.prototype.setTouchedByTheUser = function(touchedByTheUser) {
+    if (this.wasTouchedByTheUser() === touchedByTheUser) {
+        return this;
+    }
+    var extras = this.getExtras();
+    return this._$setBinderValue(this._$value, this, {_$touchedByTheUser: touchedByTheUser});
+}
+
+AbstractBinder.prototype.wasEditedByTheUser = function() {
+    return !!this.getExtras()._$editedByTheUser;
+}
+
+AbstractBinder.prototype.setEditedByTheUser = function(editedByTheUser) {
+    if (this.wasEditedByTheUser() === editedByTheUser) {
+        return this;
+    }
+    var extras = this.getExtras();
+    return this._$setBinderValue(this._$value, this, {_$editedByTheUser: editedByTheUser});
+}
+
+AbstractBinder.prototype.setTouchedAndEditedByTheUser = function(touchedByTheUser, editedByTheUser) {
+    if (this.wasTouchedByTheUser() === touchedByTheUser && this.wasEditedByTheUser() === editedByTheUser) {
+        return this;
+    }
+    var extras = this.getExtras();
+    return this._$setBinderValue(this._$value, this, {_$touchedByTheUser: touchedByTheUser,_$editedByTheUser: editedByTheUser});
+}
+
+AbstractBinder.prototype.containsErrors = function() {
+    var extras = this.getExtras();
+    return !!extras._$updatedChildContainsErrors || !!this._$oldChildrenHaveErrors || !!extras._$error;
+}
+
+AbstractBinder.prototype.childrenContainErrors = function() {
+    return !!this.getExtras()._$updatedChildContainsErrors || !!this._$oldChildrenHaveErrors;
+}
+
 
 endClass(AbstractBinder.prototype);
 
@@ -483,6 +649,7 @@ endClass(ValueBinder.prototype);
 function MapBinder(value, reuseBinders) {
     AbstractBinder.call(this, value);
 
+    var childrenHaveErrors = false
     var size = 0;
     if (reuseBinders) {
         for (var key in value) {
@@ -493,6 +660,7 @@ function MapBinder(value, reuseBinders) {
                 this[key] = buildBinder(value[key]);
             }
             setUpdater(this, this[key], key);
+            childrenHaveErrors = childrenHaveErrors || this[key].containsErrors();
             size += 1;
         }
     } else {
@@ -504,6 +672,9 @@ function MapBinder(value, reuseBinders) {
     }
     if (!('size' in this)) {
         Object.defineProperty(this, 'size', {value: size});
+    }
+    if (childrenHaveErrors) {
+        Object.defineProperty(this, '_$oldChildrenHaveErrors', {value: true});
     }
 }
 MapBinder.prototype = Object.create(AbstractBinder.prototype);
@@ -614,6 +785,7 @@ endClass(MapBinder.prototype);
 function ArrayBinder(value, reuseBinders) {
     AbstractBinder.call(this, value);
 
+    var childrenHaveErrors = false
     var length = value.length;
     if (reuseBinders) {
         for (var i = 0; i < length; i++) {
@@ -624,6 +796,7 @@ function ArrayBinder(value, reuseBinders) {
                 this[i] = buildBinder(value[i]);
             }
             setUpdater(this, this[i], i);
+            childrenHaveErrors = childrenHaveErrors || this[i].containsErrors();
         }
     } else {
         for (var i = 0; i < length; i++) {
@@ -632,6 +805,9 @@ function ArrayBinder(value, reuseBinders) {
         }
     }
     Object.defineProperty(this, 'length', {value: length});
+    if (childrenHaveErrors) {
+        Object.defineProperty(this, '_$oldChildrenHaveErrors', {value: true});
+    }
 }
 ArrayBinder.prototype = Object.create(AbstractBinder.prototype);
 ArrayBinder.prototype.constructor = ArrayBinder;
@@ -866,7 +1042,7 @@ function createNegatedBinder(sourceBinder) {
 
 function setNegatedValue(sourceBinder, newDerivedBinder) {
     var newValue = !newDerivedBinder.getValue();
-    return sourceBinder.setValue(newValue, true);
+    return sourceBinder.setValueFromDeribedBinder(newValue, newDerivedBinder);
 }
 
 function notBinder(binderToNegate) {

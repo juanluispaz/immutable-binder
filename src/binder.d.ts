@@ -139,14 +139,32 @@ declare module binderInternals {
         updateExtras(newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }, force?: boolean): this;
         setValueAndUpdateExtras(value: T, newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }, force?: boolean): this;
         updateExtrasInCurrentBinder(newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }): void;
+        setValueFromDeribedBinder(value: T, deribedBinder: Binder<any, any>, newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }): this;
 
         // Cast functions
         /*keeped for compatibility reasons*/ _<Q extends T>(): Binder<Q, MODE>;
 
         hasValue<Q extends T>(): this is Binder<binderInternals.RequiredType<Q>, MODE>;
+        sameValue(otherBinder: this): boolean
+        sameValue(value: T): boolean
 
         // Binder type information
         isValueBinder<Q extends T>(): this is Binder<Q, MODE>;
+
+        // Validations
+        setEditedValueByTheUser(value: T, force?: boolean): this;
+        setEditedValueByTheUserAndUpdateExtras(value: T, newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }, force?: boolean): this;
+
+        getError(): string | null
+        setError(error: Promise<string | null | undefined>): Promise<this>
+        setError(error: string | null | undefined): void
+        wasTouchedByTheUser(): boolean
+        setTouchedByTheUser(touchedByTheUser: boolean): this
+        wasEditedByTheUser(): boolean
+        setEditedByTheUser(editedByTheUser: boolean): this
+        setTouchedAndEditedByTheUser(touchedByTheUser: boolean, editedByTheUser: boolean): this
+        containsErrors(): boolean
+        childrenContainErrors(): boolean
     }
 
     interface InternalValueBinder<T, MODE> extends InternalAbstractBinder<T, MODE> {

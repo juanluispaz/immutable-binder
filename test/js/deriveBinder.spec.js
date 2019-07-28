@@ -10,11 +10,11 @@ function createStringBinderfromNumberBinder(sourceValue) {
 function setValueAsNumber(sourceBinder, newDerivedBinder) {
     var newValue = +newDerivedBinder.getValue();
     if (!isNaN(newValue)) {
-        return sourceBinder.setValue(newValue, true);
+        return sourceBinder.setValueFromDeribedBinder(newValue, newDerivedBinder);
     }
     
-    newDerivedBinder.updateExtrasInCurrentBinder({error: 'This must be a number'});
-    return sourceBinder.setValue(sourceBinder.getValue(), true);
+    newDerivedBinder.setError('This must be a number');
+    return sourceBinder.setValueFromDeribedBinder(sourceBinder.getValue(), newDerivedBinder);
 }
     
 function stringBinderFromNumberBinder(sourceNumberBinder) {
@@ -30,6 +30,7 @@ updater.getBinder = function() {
 test('string from number binder', function() {
     updater.updated = false;
     var b = updater.getBinder().setValue(10);
+    b.updateExtrasInCurrentBinder({_$touchedByTheUser: false, _$editedByTheUser: false, _$error: null});
     updater.updated = false;
     
     b.updateExtrasInCurrentBinder({
@@ -114,13 +115,30 @@ test('string from number binder', function() {
     expect(oldStringBinder).not.toBe(stringBinder);
     expect(b.getValue()).toBe(12);
     expect(stringBinder.getValue()).toBe('foo');
-    expect(stringBinder.getExtras().error).toBe('This must be a number');
+    expect(stringBinder.getError()).toBe('This must be a number');
+    expect(b.getError()).toBe('This must be a number');
     
     expect(stringBinder.getDerivedFrom().sourceBinder).toBe(b);
     expect(stringBinder.getDerivedFrom().createDerivedBinder).toBe(createStringBinderfromNumberBinder);
     expect(stringBinder.getDerivedFrom().setSourceValue).toBe(setValueAsNumber);
     expect(stringBinder.getDerivedFrom().derivationName).toBe('_$deriveNumberString');
     expect(b.getDerivedFrom()).toBe(null);
+
+    // validation information is shared back
+    expect(stringBinder.wasTouchedByTheUser()).toBe(false);
+    expect(b.wasTouchedByTheUser()).toBe(false);
+    expect(stringBinder.wasEditedByTheUser()).toBe(false);
+    expect(b.wasEditedByTheUser()).toBe(false);
+
+    updater.updated = false;
+    stringBinder = stringBinder.setValueAndUpdateExtras('987', {_$touchedByTheUser: true, _$editedByTheUser: true, _$error: 'Error message 1'});
+    b = updater.getBinder();
+    expect(stringBinder.getError()).toBe('Error message 1');
+    expect(b.getError()).toBe('Error message 1');
+    expect(stringBinder.wasTouchedByTheUser()).toBe(true);
+    expect(b.wasTouchedByTheUser()).toBe(true);
+    expect(stringBinder.wasEditedByTheUser()).toBe(true);
+    expect(b.wasEditedByTheUser()).toBe(true);
     
     // update permanet extras
     updater.updated = false;
@@ -146,7 +164,7 @@ test('string from number binder', function() {
     expect(stringBinder.getDerivedFrom().sourceBinder).toBe(b);
     expect(stringBinder.getDerivedFrom().derivationName).toBe('_$deriveNumberString');
     expect(b.getDerivedFrom()).toBe(null);
-    
+
     // update extras
     updater.updated = false;
 
@@ -194,6 +212,7 @@ test('string from number binder', function() {
 test('not binder', function() {
     updater.updated = false;
     var b = updater.getBinder().setValue(false);
+    b.updateExtrasInCurrentBinder({_$touchedByTheUser: false, _$editedByTheUser: false, _$error: null});
     updater.updated = false;
     
     b.updateExtrasInCurrentBinder({
@@ -260,6 +279,22 @@ test('not binder', function() {
     expect(notBinder.getDerivedFrom().derivationName).toBe('_$deriveNot');
     expect(b.getDerivedFrom()).toBe(null);
 
+    // validation information is shared back
+    expect(notBinder.wasTouchedByTheUser()).toBe(false);
+    expect(b.wasTouchedByTheUser()).toBe(false);
+    expect(notBinder.wasEditedByTheUser()).toBe(false);
+    expect(b.wasEditedByTheUser()).toBe(false);
+
+    updater.updated = false;
+    notBinder = notBinder.setValueAndUpdateExtras(false, {_$touchedByTheUser: true, _$editedByTheUser: true, _$error: 'Error message 2'});
+    b = updater.getBinder();
+    expect(notBinder.getError()).toBe('Error message 2');
+    expect(b.getError()).toBe('Error message 2');
+    expect(notBinder.wasTouchedByTheUser()).toBe(true);
+    expect(b.wasTouchedByTheUser()).toBe(true);
+    expect(notBinder.wasEditedByTheUser()).toBe(true);
+    expect(b.wasEditedByTheUser()).toBe(true);
+
     // update permanet extras
     updater.updated = false;
 
@@ -313,7 +348,7 @@ test('not binder', function() {
     
     // update source binder
     updater.updated = false;
-    b = b.setValue(true);
+    b = b.setValue(false);
     
     b.updateExtrasInCurrentBinder({
         error: 'error test not 2',
@@ -322,7 +357,7 @@ test('not binder', function() {
     binder.inheritedExtras.push('notExtra');
     
     notBinder = binder.not(b);
-    expect(notBinder.getValue()).toBe(false);
+    expect(notBinder.getValue()).toBe(true);
     expect(notBinder.getExtras().error).toBe('error test not 2');
     expect(notBinder.getExtras().notExtra).toBe('this must be included not 2');
 });

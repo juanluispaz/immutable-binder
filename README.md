@@ -10,7 +10,7 @@ The binder handles the contained data in an immutable way, as well, the binder i
 
 With **immutable-binder** you can have the advantages of the two-way data bindings in an immutable environment (like React) running in a safe and immutable way.
 
-The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) with near to 600 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
+The **immutable-binder** is a very small library (15.4 kb minified, 3.4 kb gzipped) with near to 750 loc in JavaScript and 250 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
 
 # Summary
 
@@ -38,6 +38,9 @@ The **immutable-binder** is a very small library (12 kb minified, 3 kb gzipped) 
 		* [Other methods](#other-methods)
 		* [Unsupported methods](#unsupported-methods-1)
 * [Extra data management](#extra-data-management)
+* [Data validation](#data-validation)
+	* [Value management methods](#value-management-methods)
+	* [Validation status methods](#validation-status-methods)
 * [Derived binder](#derived-binder)
 	* [Example: not binder](#example-not-binder)
 	* [Example: String binder from a number binder](#example-string-binder-from-a-number-binder)
@@ -138,9 +141,13 @@ This is the basic representation of any binder.
 
 - **`getValue(): T`**: returns the value contained by the binder.
 
-- **`setValue(value: T, force?: boolean): Binder<T>`**: sets the value to the binder, returns the new binder that represents the same node in the new tree. This method receives a secondary optional argument, that if it is set to `true`, it forces to create a new tree even when the value is the same as the current one.
+- **`setValue(value: T, force?: boolean): Binder<T>`**: sets the value to the binder, returns the new binder that represents the same node in the new tree. This method receives an optional second argument, that if it is set to `true`, it forces to create a new tree even when the value is the same as the current one.
 
 - **`hasValue(): boolean`**: returns `true` if the contained value is different to `null` or `undefined`, otherwise returns `false`.
+
+- **`sameValue(value: T): boolean`**: returns `true` if the contained value is the same that the provided by argument, otherwise returns `false`.
+
+- **`sameValue(value: Binder<T>): boolean`**: overload of the previous method. Returns `true` if the contained value is the same value contained by the binder provided by argument, otherwise returns `false`.
 
 - **`getParent(): Binder<any> | null`**: returns the parent binder that contains this binder. This method returns `null` when this binder is the root binder.
 
@@ -357,9 +364,51 @@ In order to handle the extra data, the binder object has the following methods:
 
 - **`updateExtras(newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>`**: this method updates the temporal extra data stored in the object passed as first argument and the permanent extra data stored in the object passed as second argument, coping it to the extra object in a new binder. Returns the new binder that represents the same node in the new tree. This method receives a third optional argument, that if it is set to `true`, it forces to create a new tree even when no changes are detected in respect to the current status (by default if no changes are detected, it returns the same current binder with no changes).
 
-- **`setValueAndUpdateExtras(value: T, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>`**: this method allows to perform a `setValue` and `updateExtras` at the same time. Receives as first argument the value to store in the binder, as secondary and third argument the properties to be copied into the extra object as temporal and permanent extras in a new binder. This method receives a fourth optional argument, that if it is set to `true`, it forces to create a new tree even when no changes are detected in respect to the current status (by default if no changes are detected, it returns the same current binder with no changes).
+- **`setValueAndUpdateExtras(value: T, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>`**: this method allows to perform a `setValue` and `updateExtras` at the same time. Receives as first argument the value to store in the binder, as second and third argument the properties to be copied into the extra object as temporal and permanent extras in a new binder. This method receives a fourth optional argument, that if it is set to `true`, it forces to create a new tree even when no changes are detected in respect to the current status (by default if no changes are detected, it returns the same current binder with no changes).
 
 - **`updateExtrasInCurrentBinder(newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}): void`**: this method updates the temporal extra data stored in the object passed as first argument and the permanent extra data stored in the object passed as second argument, coping it to the extra object in the current binder. This method allows you to update the extra data without creating a new binder (mutating the current extras object).
+
+# Data validation
+
+In a binder you can store the information required to see the validation status of its stored value.
+
+The validation information stored in a binder is:
+
+- **Error message**: An error message associated with the data stored by the binder.
+- **Edited by the user**: If the data was edited by the user or not.
+- **Touched by the user**: If the data was touched by the user; that means, if the user leave the input editor with or without changing the data. Usually, this is set to true when the `onBlur` event happens.
+
+**Note**: This information exists while the value doesn't change in the binder; if it is changed, the error message is lost but the edited and touched by the user status are kept in the binder that contains the value; but, they are lost in the children binders (if exists).
+
+In order to handle the data validation information, the binder object has the following methods:
+
+### Value management methods
+
+- **`setEditedValueByTheUser(value: T, force?: boolean): Binder<T>`**: sets the value to the binder and mark it as provided by the user, returns the new binder that represents the same node in the new tree. This method receives an optional second argument, that if it is set to `true`, it forces to create a new tree even when the value is the same as the current one. This method marks the binder as edited by the user.
+
+- **`setEditedValueByTheUserAndUpdateExtras(value: T, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}, force?: boolean): Binder<T>`**: this method allows to perform a `setEditedValueByTheUser` and `updateExtras` at the same time. Receives as first argument the value to store in the binder, as second and third argument the properties to be copied into the extra object as temporal and permanent extras in a new binder. This method receives a fourth optional argument, that if it is set to `true`, it forces to create a new tree even when no changes are detected in respect to the current status (by default if no changes are detected, it returns the same current binder with no changes). This method marks the binder as edited by the user.
+
+### Validation status methods
+
+- **`getError(): string | null`**: returns the error message associated with the current value of the binder, or null if there is no error message.
+
+- **`setError(error: string | null | undefined):  void`**: set the error message associated with the current binder. If the error message is `null`, `undefined`, an empty string, or a previous error message exists, this is ignored keeping the previous message. **Important**: This method only must be called before the binder is used, otherwise the error message could be ignored by your logic.
+
+- **`setError(error: Promise<string | null | undefined>):  Promise<Binder<T>>`**:  this is an overload of the previous method that allows to specify the promise that will return the error message; when the promise is resolved, it set the error message associated with the current binder value (creating a new binder with the same value). If the error message is `null`, `undefined`, an empty string, or a previous error message exists, the change is ignored keeping the previous message. This method returns a promise that will contain the modified binder if there were changes, otherwise (because the error message is `null`, `undefined`, an empty string, or a previous error message exists) returns a promise that will contain the same binder (`this`).
+
+- **`wasEditedByTheUser(): boolean`**: returns if the value was edited by the user.
+
+- **`setEditedByTheUser(editedByTheUser: boolean):  Binder<T>`**: set if the value was edited by the user.
+
+- **`wasTouchedByTheUser(): boolean`**: returns if the value was touched by the user.
+
+- **`setTouchedByTheUser(editedByTheUser: boolean):  Binder<T>`**: set if the value was touched by the user.
+
+- **`setTouchedAndEditedByTheUser(touchedByTheUser: boolean, editedByTheUser: boolean): Binder<T>`**: this method allows to perform a `setTouchedByTheUser` and `setEditedByTheUser` at the same time. Receives as first argument if the data was touched by the user and as second argument if the data was edited by the user.
+
+- **`containsErrors(): boolean`**: returns `true` if this binder of any of it's children binders contains errors, returns `false` otherwise.
+
+- **`childrenContainErrors(): boolean`**: returns `true`if any of it's children binders contains errors, returns `false` otherwise. This method doesn't take in consideration if the binder has an error message, only if any children binder contains an error message.
 
 # Derived binder
 
@@ -379,7 +428,7 @@ To do it, we need:
 	(sourceBinder: Binder<SOURCE>, newDerivedBinder: Binder<DERIVED>) => Binder<SOURCE>
 	```
 
-	**Note**: it is important that when you update the source binder, you force the update, even if there are no changes in order to allow the extra data management to work properly.
+	**Note**: it is important that when you update the source binder, you must do using the `setValueFromDeribedBinder` method (explained later), even if there are no changes in order to allow the extra data management to work properly.
 
 - **`derivationName`**: string with a unique name for the new derived binder; this name is used to cache the derived binder. If you try to recreate this derived binder over the source binder, the previous derived binder will be returned.
 
@@ -393,6 +442,14 @@ function deriveBinderFrom<SOURCE, DERIVED>(
     derivationName: string
 ): Binder<DERIVED>
 ```
+
+## Updating the parent value
+
+To update the source binder value you must use the following method:
+
+- **`setValueFromDeribedBinder(value: T, deribedBinder:  Binder<any>, newTemporalExtras?: {[key: string]: any}, newPermanentExtras?: {[key: string]: any}): Binder<T>`**: this method allows to perform a `setValue` and `updateExtras` at the same time. Receives as first argument the value to store in the binder, as second argument receives the derived binder that is the source of the update, as fourth argument the properties to be copied into the extra object as temporal and permanent extras in a new binder. This method always force the update even there are no changes.
+
+**Note**: When you update the source binder using this method the is edited by the user status, is touched by the user status, and the error message are set in the new source binder.
 
 ## Example: not binder
 
@@ -410,7 +467,7 @@ function notBinder(binderToNegate) {
 	};
     var setSourceValue = (sourceBinder, newDerivedBinder) => {
 	    var newValue = !newDerivedBinder.getValue();
-	    return sourceBinder.setValue(newValue, true);
+	    return sourceBinder.setValueFromDeribedBinder(newValue, newDeribedBinder);
 	};
     return deriveBinderFrom(binderToNegate, createDerivedBinder, setSourceValue, 'notBinder');
 }
@@ -462,11 +519,11 @@ function createStringBinderfromNumberBinder(sourceValue) {
 function setValueAsNumber(sourceBinder, newDerivedBinder) {
     var newValue = +newDerivedBinder.getValue(); // cast the string to number
     if (!isNaN(newValue)) {
-        return sourceBinder.setValue(newValue, true);
+        return sourceBinder.setValueFromDeribedBinder(newValue, newDeribedBinder);
     }
     
-    newDerivedBinder.updateExtrasInCurrentBinder({error: 'This must be a number'});
-    return sourceBinder.setValue(sourceBinder.getValue(), true);
+    newDerivedBinder.setError('This must be a number');
+    return sourceBinder.setValueFromDeribedBinder(sourceBinder.getValue(), newDeribedBinder);
 }
     
 function stringBinderFromNumberBinder(sourceNumberBinder) {
@@ -483,12 +540,12 @@ expect(stringBinder.getValue()).toBe('10');
 
 stringBinder = stringBinder.setValue('hello');
 expect(stringBinder.getValue()).toBe('hello');
-expect(stringBinder.getExtras().error).toBe('This must be a number');
+expect(stringBinder.getError()).toBe('This must be a number');
 expect(numberBinder.getValue()).toBe(10);
 
 stringBinder = stringBinder.setValue('23');
 expect(stringBinder.getValue()).toBe('23');
-expect(stringBinder.getExtras().error).toBe(undefined);
+expect(stringBinder.getError()).toBe(null);
 expect(numberBinder.getValue()).toBe(23);
 
 var stringBinder2 = stringBinderFromNumberBinder(numberBinder);
@@ -517,9 +574,12 @@ In this object each property corresponds to an argument passed to the function `
 
 Some extras are automatically copied from the source binder to the derived binder when the derived binder is created or updated. All the extras copied from the source binder to the derived binder are created as *temporal*. The list of extras to be copied automatically is in the property `inheritedExtras` exposed by  the `immutable-binder` library as an array of strings.
 
-By default `inheritedExtras` only includes the property `error`.
+By default `inheritedExtras` only includes the property `error`, as well, any data validation information (error message, is edited by the user, is touched by the user).
 
-**Example**:
+**Note**: When you update the source binder using the method `setValueFromDeribedBinder` (as you must do) the is edited by the user status and is touched by the user status are set in the new source binder.
+
+**Example**: in this example we use an extra called `error`; but, remember, you can use the method `getError`/`setError` to handle the validation error messages.
+
 ```js
 import {createBinder, notBinder} from 'immutable-binder';
 
@@ -534,6 +594,7 @@ expect(stringAgeBinder.getExtras().error).toBe('age must be a number between 0 a
 ```
 
 If you wants to add another property you, must do something similar to:
+
 ```js
 import {inheritedExtras} from 'immutable-binder';
 
@@ -577,7 +638,7 @@ This function receives the following arguments:
 
 # TypeScript binder modes
 
-In TypeScript there are four different modes as you can represent an object in a binder, this modes are made fron the combinations of:
+In TypeScript there are four different modes as you can represent an object in a binder, this modes are made from the combinations of:
 
 - Include functions in the binder
 - All optional properties are treated as required; that means, any property like `propertyName?: propertyType` are treated as `propertyName: propertyValue | undefined`. Use this mode allows you don't be worried about the undefined properties in the binder when you use the syntax `binderOfAnObject.propertyName` because the property always will exists. **Note**: This mode requires you use an initializer function when you create the binder, this function must ensure all posible properties in the object exists (even with undefined value).
@@ -624,10 +685,10 @@ The **inmutable-binder** module defines several types:
     **Types of binders**:
 
     - **Abstract binder**: represents the base class of any binder.
-    - **Value binder**: represents a binder that contains a value, that is: boolean, number, string, Date, Function, null or undefined.
+    - **Value binder**: represents a binder that contains a value, that is: `boolean`, `number`, `string`, `Date`, `Function`, `null` or `undefined`.
     - **Array binder**: represents a binder that contains an array.
     - **Map binder**: represents a binder that contains an `ObjectMap`.
-    - **Object binder**: represents a binder that contains an obejct.
+    - **Object binder**: represents a binder that contains an object.
 
     **Note**: in JavaScript an object binder and map binder are the same.
 
@@ -642,7 +703,7 @@ There are alias to the `Binder` type where the default mode is one specific mode
 
 ## Compatibility aliases
 
-For backward compatibility purposes, the folowing aliases are defined as well:
+For backward compatibility purposes, the following aliases are defined as well:
 
 - **`ArrayBinder<T, MODE=binderMode.DefaultMode>`**: represents a binder that contains an array of `T`. TypeScript definition:
 
@@ -666,7 +727,7 @@ For backward compatibility purposes, the folowing aliases are defined as well:
 
 ## Other types
 
-All types defined inside of `binderUtils` or `binderInternals` are considered private, and your code must don't include explicit dependecy to these types.
+All types defined inside of `binderUtils` or `binderInternals` are considered private, and your code must don't include explicit dependency to these types.
 
 # Using with React
 
@@ -682,7 +743,7 @@ class TextEditor extends React.Component {
     render() {
         var {binder, label} = this.props;
         var value = binder.getValue();
-        var error = binder.getExtras().error;
+        var error = binder.getError();
 
         return (
             <label>
@@ -691,6 +752,7 @@ class TextEditor extends React.Component {
                     value={value} 
                     title={error} 
                     onChange={this.handleChange}
+                    onBlur={this.handleBlur}
                     data-hasErrors={!!error}
                 />
             </label>
@@ -698,7 +760,11 @@ class TextEditor extends React.Component {
     }
 
     handleChange = (e) => {
-        this.props.binder.setValue(e.target.value);
+        this.props.binder.setEditedValueByTheUser(e.target.value);
+    }
+
+    handleBlur = (e) => {
+        this.props.binder.setTouchedByTheUser(true);
     }
 }
 
@@ -740,20 +806,25 @@ class PersonEditor extends React.Component {
 
     validate(binder) {
         if (!binder.firstName.hasValue()) {
-            binder.firstName.updateExtrasInCurrentBinder({error: 'You must specify your first name'});
+            binder.firstName.setError('You must specify your first name');
         }
         if (!binder.lastName.hasValue()) {
-            binder.lastName.updateExtrasInCurrentBinder({error: 'You must specify your last name'});
+            binder.lastName.setError('You must specify your last name');
         }
         var age = binder.age.getValue();
         if (age <= 18 || age >= 100) {
-            binder.age.updateExtrasInCurrentBinder({error: 'Your age must be a number between 18 and 99'});
+            binder.age.setError('Your age must be a number between 18 and 99');
         }
         return binder;
     }
 
-    handleChange = (newRootBinder) => {
-        this.setState({personBinder: this.validate(newRootBinder)});
+    handleChange = (newRootBinder, newBinder, oldBinder) => {
+	    if (newBinder.sameValue(oldBinder)) {
+		    // No extra validation required
+	        this.setState({personBinder: newRootBinder});
+	    } else {
+	        this.setState({personBinder: this.validate(newRootBinder)});
+	    }
     }
 
     handleSubmit = (e) => {
@@ -784,7 +855,7 @@ ReactDOM.render(<PersonEditor person={person}/>, mountNode);
 # Limitations
 
 - Only simple JavaScript are supported, more complex types like `Map` are not supported.
-- In TypeScript, if you try to access to an array's element of an array through the accessor, your will get the binder without the proper downcast, instead you can use the `get` method or use th `_()` in the resultanting type. E.g.:
+- In TypeScript, if you try to access to an array's element of an array through the accessor, your will get the binder without the proper downcast, instead you can use the `get` method or  the `_()` method in the resulting binder. E.g.:
 
 	```typescript
 	var wrongTypeBinder = arrayBinder[index];

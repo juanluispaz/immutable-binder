@@ -27,6 +27,10 @@ function createUpdater() {
         
         expect(oldBinder).toBeInstanceOf(binder);
         expect(oldBinder.isValidBinder()).toBe(false);
+
+        if (newBinder.containsErrors()) {
+            expect(newRootBinder.containsErrors()).toBe(true);
+        }
     }
     
     updater.initializer = function(newValue, oldBinder) {

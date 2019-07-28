@@ -25,22 +25,9 @@ function checkExtras(extrasInBinders, binder) {
     }    
 }
 
-function testUpdateBinder(updater, update, getBinder) {
-    if (!getBinder) {
-        getBinder = function() {
-            return updater.getBinder();
-        };
-    }
-    
-    updater.updated = false;
-    var oldBinder = getBinder();
-
-    var extrasInBinders = [];
-    setExtras(extrasInBinders, oldBinder);
-
-    var b = update(oldBinder);
+function runTests(b, oldBinder, extrasInBinders, updater, update, getBinder) {
     var newBinder = getBinder();
-    
+
     expect(b).not.toBe(undefined);
     expect(b).not.toBe(null);
     expect(b).toBeInstanceOf(binder);
@@ -103,7 +90,30 @@ function testUpdateBinder(updater, update, getBinder) {
             throw new Error('properties found in a value binder which must have no properties');
         }
     }
+}
+
+function testUpdateBinder(updater, update, getBinder) {
+    if (!getBinder) {
+        getBinder = function() {
+            return updater.getBinder();
+        };
+    }
     
-    return b;
+    updater.updated = false;
+    var oldBinder = getBinder();
+
+    var extrasInBinders = [];
+    setExtras(extrasInBinders, oldBinder);
+
+    var result = update(oldBinder);
+    if (result instanceof Promise) {
+        result.then(function (r) {
+            runTests(r, oldBinder, extrasInBinders, updater, update, getBinder);
+        });
+    } else {
+        runTests(result, oldBinder, extrasInBinders, updater, update, getBinder);
+    }
+    
+    return result;
 }
 module.exports = testUpdateBinder;

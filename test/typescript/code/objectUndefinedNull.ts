@@ -93,6 +93,14 @@ valueBinder.updateExtrasInCurrentBinder({ foo: valueVar })
 valueBinder.updateExtrasInCurrentBinder({ foo: valueVar }, { foo: valueVar })
 valueBinder.updateExtrasInCurrentBinder(undefined, { foo: valueVar })
 
+valueBinder = valueBinder.setValueFromDeribedBinder(valueVar, objectBinder)
+valueBinder = valueBinder.setValueFromDeribedBinder(valueVar, objectBinder, { foo: valueVar })
+valueBinder = valueBinder.setValueFromDeribedBinder(valueVar, objectBinder, { foo: valueVar }, { foo: valueVar })
+valueBinder = valueBinder.setValueFromDeribedBinder(valueVar, objectBinder, undefined, { foo: valueVar })
+
+booleanVar = valueBinder.sameValue(valueVar)
+booleanVar = valueBinder.sameValue(valueBinder)
+
 stringVar = valueBinder.toString()
 stringVar = valueBinder.toLocaleString()
 
@@ -106,6 +114,30 @@ if (valueBinder.isValueBinder()) { valueBinder = valueBinder }
 if (valueBinder.isObjectBinder()) { valueBinder = valueBinder }
 if (valueBinder.isMapBinder()) { valueBinder = valueBinder }
 if (valueBinder.isArrayBinder()) { valueBinder = valueBinder }
+
+valueBinder = valueBinder.setEditedValueByTheUser(valueVar)
+valueBinder = valueBinder.setEditedValueByTheUser(valueVar, booleanVar)
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, { foo: valueVar })
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, { foo: valueVar }, { foo: valueVar })
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, undefined, { foo: valueVar })
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, { foo: valueVar }, undefined, booleanVar)
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, { foo: valueVar }, { foo: valueVar }, booleanVar)
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, { foo: valueVar }, undefined, booleanVar)
+valueBinder = valueBinder.setEditedValueByTheUserAndUpdateExtras(valueVar, undefined, undefined, booleanVar)
+
+var error : string | null = valueBinder.getError()
+valueBinder.setError(error)
+declare var promiseError: Promise<string | null | undefined>
+var promiseBinder: Promise<ValueBinder> = valueBinder.setError(promiseError)
+
+booleanVar = valueBinder.wasTouchedByTheUser()
+valueBinder = valueBinder.setTouchedByTheUser(booleanVar)
+booleanVar = valueBinder.wasEditedByTheUser()
+valueBinder = valueBinder.setEditedByTheUser(booleanVar)
+valueBinder = valueBinder.setTouchedAndEditedByTheUser(booleanVar, booleanVar)
+
+booleanVar = valueBinder.containsErrors()
+booleanVar = valueBinder.childrenContainErrors()
 
 objectBaseBinder = objectBinder
 contentBaseBinder = contentBinder
