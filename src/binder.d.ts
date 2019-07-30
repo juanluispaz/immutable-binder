@@ -33,9 +33,9 @@ export type ObjectBinder<T/* extends object *//*commented for compatibity reason
 export type MapBinder<T, MODE=binderMode.DefaultMode> = Binder<ObjectMap<T>, MODE>;
 
 export declare module binderMode {
-    export type DefaultMode = '' & 'Default';
-    export type PreInitializedMode = DefaultMode & 'PreInitialized';
-    export type IncludeFunctionsMode = DefaultMode & 'IncludeFunctions';
+    export type DefaultMode = { defaultMode: 'defaultMode' };
+    export type PreInitializedMode = DefaultMode & { preInitializedMode: 'preInitializedMode' };
+    export type IncludeFunctionsMode = DefaultMode & { includeFunctionsMode: 'includeFunctionsMode' };
     export type PreInitializedAndIncludeFunctionsMode = PreInitializedMode & IncludeFunctionsMode;
 }
 
@@ -66,6 +66,21 @@ declare module binderUtils {
  * Internal types, these types are not for depend directly in the code
  */
 declare module binderInternals {
+    /*
+     * Extends type allows to know if the extact type extends of the other one, even when it is a union type
+     * Example: if you have
+     *   type IsArray<T> = T extends Array<any> ? 'isArray' : 'notArray'
+     *   declare var myVar1: IsArray<number> // the type is 'notArray' 
+     *   declare var myVar2: IsArray<number[]> // the type is 'isArray' 
+     *   declare var myVar3: IsArray<number[] | string> // the type is 'isArray' | 'notArray' 
+     * But if you have
+     *   type IsArray<T> = 'yes' extends Extends<T, Array<any>> ? 'isArray' : 'notArray'
+     *   declare var myVar1: IsArray<number> // the type is 'notArray' 
+     *   declare var myVar2: IsArray<number[]> // the type is 'isArray' 
+     *   declare var myVar3: IsArray<number[] | string> // the type is 'notArray' 
+     */
+    //type Extends<A, B> = { _extends(): A } extends { _extends(): B } ? 'yes' : 'no'
+
     type KeyOfExcludingFuntions<T> = ({ [K in keyof T]-?: T[K] extends Function ? never : K })[keyof T];
 
     /*
@@ -75,22 +90,21 @@ declare module binderInternals {
 
     /*
      * MandatoryProperties retunrs never and OptionalProperties returns all properties 
-     * when strictNullCheck is not enabled  
+     * when strictNullCheck is not enabled
+     * 
+     * Note: mandatory and optional properties take in consideration only the properties maked with ?, but not
+     * those whose type allows undefined but not marked with ? 
      */
     type ObjectKeysAux<T, KEYS extends keyof T> = ({ [K in KEYS]: T[K] extends never ? never : K });
-    type MandatoryPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: VarianceIn<T[K]> extends VarianceIn<undefined> ? never : K })[KEYS];
-    type OptionalPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: VarianceIn<T[K]> extends VarianceIn<undefined> ? K : never })[KEYS];
+    type MandatoryPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: undefined extends T[K] ? never : K })[KEYS];
+    type OptionalPropertiesAux<T, KEYS extends keyof T> = ({ [K in KEYS]-?: undefined extends T[K] ? K : never })[KEYS];
     type MandatoryProperties<T, KEYS extends keyof T> = MandatoryPropertiesAux<ObjectKeysAux<T, KEYS>, KEYS>;
     type OptionalProperties<T, KEYS extends keyof T> = OptionalPropertiesAux<ObjectKeysAux<T, KEYS>, KEYS>;
 
-    type VarianceInOut<T> = { _variance_in_out(arg: T): T };
-    type VarianceIn<T> = { _variance_in(arg: T): void };
-    type VarianceOut<T> = { _variance_out(): T };
-
     type RequiredType<T> = T extends null | undefined ? never : T;
 
-    type TypeWhenAny<T, Twhen, Telse> = VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? Twhen : Telse;
-    type TypeWhenArray<T, Twhen, Telse> = VarianceInOut<T> extends VarianceInOut<Array<infer Q>> ? Twhen : Telse;
+    type TypeWhenAny<T, Twhen, Telse> = { _extends(): T } extends { _extends(): '__binder_any_type__' } ? Twhen : Telse;
+    type TypeWhenArray<T, Twhen, Telse> = { _extends(): T } extends { _extends(): Array<any> } ? Twhen : Telse;    
 
     class InternalBaseBinder<T, MODE> {
         private _mode : MODE;
@@ -337,41 +351,34 @@ declare module binderInternals {
          */
     }
 
-    type AllowNullOrUndefined<T> = VarianceIn<String> extends VarianceIn<null> ? 'no' /*strictNullCheckDisabled*/
-        : null extends T ? 'yes' : undefined extends T ? 'yes' : 'no';
+    /*
+     * Detect if the type allows nulls or undefined, when the type is any returns 'yes', then, 
+     * when strictNullCheck is not enabled always returns 'no' 
+     */
+    type AllowNullOrUndefined<T> = { _extends(): T } extends { _extends(): '__binder_any_type__' } ? 'yes' // type is any
+        : null extends string ? 'no' /*strictNullCheck is not enabled*/
+        : { _extends(): null | undefined } extends { _extends(): T } ? 'yes' : 'no';
+
+    type IsValueType<A> = 'yes' extends (A extends boolean | Boolean | number | Number | string | String | Date | Function ? 'yes' : 'no') ? 'yes' : 'no'
 
     type InternalBinder<T, MODE> =
-        VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? InternalValueBinder<any, MODE> :
         'yes' extends AllowNullOrUndefined<T> ? InternalValueBinder<T, MODE> :
-        VarianceInOut<T> extends VarianceInOut<Function> ? InternalValueBinder<T, MODE> :
-        VarianceInOut<T> extends VarianceInOut<true | false> ? InternalValueBinder<boolean, MODE> :
-        VarianceInOut<T> extends VarianceInOut<boolean> ? InternalValueBinder<boolean, MODE> :
-        VarianceInOut<T> extends VarianceInOut<Boolean> ? InternalValueBinder<Boolean, MODE> :
-        VarianceInOut<T> extends VarianceInOut<number> ? InternalValueBinder<number, MODE> :
-        VarianceInOut<T> extends VarianceInOut<Number> ? InternalValueBinder<Number, MODE> :
-        VarianceInOut<T> extends VarianceInOut<string> ? InternalValueBinder<string, MODE> :
-        VarianceInOut<T> extends VarianceInOut<String> ? InternalValueBinder<String, MODE> :
-        VarianceInOut<T> extends VarianceInOut<Date> ? InternalValueBinder<Date, MODE> :
-        VarianceInOut<T> extends VarianceInOut<Array<infer Q>> ? (
-            VarianceInOut<Q> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyArrayBinder<MODE> : InternalArrayBinder<Q, MODE>
+        'yes' extends IsValueType<T> ? InternalValueBinder<T, MODE> :
+        { _extends(): T } extends { _extends(): Array<infer Q> } ? (
+            { _extends(): Q } extends { _extends(): '__binder_any_type__' } ? InternalAnyArrayBinder<MODE> : InternalArrayBinder<Q, MODE>
         ) :
-        VarianceInOut<T> extends VarianceInOut<ObjectMap<infer Q>> ? (
-            VarianceInOut<Q> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyMapBinder<MODE> : InternalMapBinder<Q, MODE>
-        ) :
-        VarianceOut<T> extends VarianceOut<object> ? (
-            VarianceInOut<T> extends VarianceInOut<'__binder_any_type__'> ? InternalAnyObjectBinder<MODE> :
-            VarianceInOut<{}> extends VarianceInOut<T> ? InternalValueBinder<T, MODE> :
-            VarianceInOut<MODE> extends VarianceInOut<'__binder_any_option__'> ?
-                /*ObjectBinder of any mode*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE> :
-            VarianceOut<MODE> extends VarianceOut<'PreInitialized'> ?
-            (VarianceOut<MODE> extends VarianceOut<'IncludeFunctions'> ?
-                /*PFObjectBinder*/ InternalObjectBinder<T, keyof T, keyof T, MODE> & InternalObjectBinderAllKeys<T, keyof T, MODE> :
-                /*PObjectBinder*/ InternalObjectBinder<T, keyof T, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderAllKeys<T, KeyOfExcludingFuntions<T>, MODE>
+        { _extends(): string } extends { _extends(): keyof T } ? (
+            { _extends(): T } extends { _extends(): ObjectMap<infer Q> } ? (
+                { _extends(): Q } extends { _extends(): '__binder_any_type__' } ? InternalAnyMapBinder<MODE> : InternalMapBinder<Q, MODE>
             ) :
-            (VarianceOut<MODE> extends VarianceOut<'IncludeFunctions'> ?
-                /*FObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, keyof T>, keyof T, MODE> & InternalObjectBinderOptionalKeys<T, keyof T, MODE> :
-                /*ObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE>
-            )
+            InternalValueBinder<T, MODE>
         ) :
-        InternalValueBinder<T, MODE>;
+        { _extends(): MODE } extends { _extends(): '__binder_any_type__' } ? /*ObjectBinder of any mode*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE> :
+        { _extends(): MODE } extends { _extends(): binderMode.PreInitializedMode } ? (
+            { _extends(): MODE } extends { _extends(): binderMode.IncludeFunctionsMode } ? /*PFObjectBinder*/ InternalObjectBinder<T, keyof T, keyof T, MODE> & InternalObjectBinderAllKeys<T, keyof T, MODE> :
+            [KeyOfExcludingFuntions<T>] extends [never]? InternalValueBinder<T, MODE>: // We use [never] here because: https://github.com/Microsoft/TypeScript/issues/23182
+            /*PObjectBinder*/ InternalObjectBinder<T, keyof T, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderAllKeys<T, KeyOfExcludingFuntions<T>, MODE>
+        ) : { _extends(): MODE } extends { _extends(): binderMode.IncludeFunctionsMode } ? /*FObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, keyof T>, keyof T, MODE> & InternalObjectBinderOptionalKeys<T, keyof T, MODE> :
+        [KeyOfExcludingFuntions<T>] extends [never] ? InternalValueBinder<T, MODE> : // We use [never] here because: https://github.com/Microsoft/TypeScript/issues/23182
+        /*ObjectBinder*/ InternalObjectBinder<T, MandatoryProperties<T, KeyOfExcludingFuntions<T>>, KeyOfExcludingFuntions<T>, MODE> & InternalObjectBinderOptionalKeys<T, KeyOfExcludingFuntions<T>, MODE>
 }

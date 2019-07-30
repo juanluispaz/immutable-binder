@@ -6,11 +6,11 @@
 
 The binder handles the contained data in an immutable way, as well, the binder itself is an immutable object; every time you update a binder a new binder is created. Immutable binders allow to pass it as parameter in frameworks such as **react** where you are expecting immutable data.
 
-**immutable-binder** allows you to use **TypeScript** without losing the type validations, in other words, your binders are **full typed** in TypeScript (it requires TypeScript 2.8 or newer).
+**immutable-binder** allows you to use **TypeScript** without losing the type validations, in other words, your binders are **full typed** in TypeScript (it requires TypeScript 3.3.3 or newer).
 
 With **immutable-binder** you can have the advantages of the two-way data bindings in an immutable environment (like React) running in a safe and immutable way.
 
-The **immutable-binder** is a very small library (15.4 kb minified, 3.4 kb gzipped) with near to 750 loc in JavaScript and 250 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
+The **immutable-binder** is a very small library (15.4 kb minified, 3.4 kb gzipped) with near to 750 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
 
 # Summary
 
