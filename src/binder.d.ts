@@ -84,7 +84,7 @@ declare module binderInternals {
     type KeyOfExcludingFuntions<T> = ({ [K in keyof T]-?: T[K] extends Function ? never : K })[keyof T];
 
     /*
-     * Join of the type of the diffent propesties in the object
+     * Join of the type of the diffent properties in the object
      */
     type ValuesTypes<T, KEYS extends keyof T> = ({ [K in keyof T]: T[K]})[KEYS];
 
@@ -113,9 +113,9 @@ declare module binderInternals {
         // Cast functions
         // This methos must be keeped in this class instead of be placed in InternalAbstractBinder to allow 
         // asign to binderUtils.AnyObjectBinder, Binder<any[]> and Binder<ObjectMap<any>> from the no any version
-        isObjectBinder<Q extends T>(): this is TypeWhenAny<T, binderUtils.AnyObjectBinder<MODE>, Binder<TypeWhenAny<T, undefined, Q>, MODE>>;
-        isMapBinder<Q extends T>(): this is TypeWhenAny<T, Binder<ObjectMap<any>, MODE>, Binder<Q, MODE>>;
-        isArrayBinder<Q extends T>(): this is TypeWhenAny<T, Binder<any[], MODE>, Binder<Q, MODE>>;
+        isObjectBinder(): this is TypeWhenAny<T, binderUtils.AnyObjectBinder<MODE>, Binder<TypeWhenAny<T, undefined, T>, MODE>>;
+        isMapBinder(): this is TypeWhenAny<T, Binder<ObjectMap<any>, MODE>, Binder<T, MODE>>;
+        isArrayBinder(): this is TypeWhenAny<T, Binder<any[], MODE>, Binder<T, MODE>>;
     }
 
     /*
@@ -156,14 +156,14 @@ declare module binderInternals {
         setValueFromDeribedBinder(value: T, deribedBinder: Binder<any, any>, newTemporalExtras?: { [key: string]: any }, newPermanentExtras?: { [key: string]: any }): this;
 
         // Cast functions
-        /*keeped for compatibility reasons*/ _<Q extends T>(): Binder<Q, MODE>;
+        /*keeped for compatibility reasons*/ _(): Binder<T, MODE>;
 
-        hasValue<Q extends T>(): this is Binder<binderInternals.RequiredType<Q>, MODE>;
+        hasValue(): this is Binder<binderInternals.RequiredType<T>, MODE>;
         sameValue(otherBinder: this): boolean
         sameValue(value: T): boolean
 
         // Binder type information
-        isValueBinder<Q extends T>(): this is Binder<Q, MODE>;
+        isValueBinder(): this is Binder<T, MODE>;
 
         // Validations
         setEditedValueByTheUser(value: T, force?: boolean): this;
@@ -187,14 +187,14 @@ declare module binderInternals {
     interface InternalMapBinder<T, MODE> extends InternalAbstractBinder<ObjectMap<T>, MODE> {
         size: number;
 
-        get<Q extends T>(key: string): Binder<Q, MODE> | undefined;
-        set<Q extends T>(key: string, value: Q): this;
+        get(key: string): Binder<T, MODE> | undefined;
+        set(key: string, value: T): this;
 
         clear(): this;
         delete(key: string): this;
         has(key: string): boolean;
 
-        forEach<Q extends T>(callbackfn: (value: Binder<Q, MODE>, key: string, mapBinder: this) => void): void;
+        forEach(callbackfn: (value: Binder<T, MODE>, key: string, mapBinder: this) => void): void;
     }
 
     interface InternalAnyMapBinder<MODE> extends InternalAbstractBinder<ObjectMap<any>, MODE> {
@@ -215,8 +215,8 @@ declare module binderInternals {
         //readonly [index: number]: Binder<T, MODE>; // Not suported due the mentioned bug
         readonly [index: number]: TypeWhenArray<T, binderUtils.AbstractBinder<T>, Binder<TypeWhenArray<T, undefined, T>, MODE>>;
 
-        get<Q extends T>(index: number): Binder<Q, MODE>;
-        set<Q extends T>(index: number, value: Q): this;
+        get(index: number): Binder<T, MODE>;
+        set(index: number, value: T): this;
 
         // Basic array mutator
         splice(start: number, deleteCount?: number): this;
@@ -233,30 +233,30 @@ declare module binderInternals {
         removeAt(index: number, deleteCount?: number): this;
 
         // Other methods
-        concat<Q extends T, QR extends T>(...items: (binderUtils.AbstractBinder<Q[], MODE> | binderUtils.AbstractBinder<Q, MODE> | binderUtils.AbstractBinder<Q, MODE>[] | ReadonlyArray<binderUtils.AbstractBinder<Q, MODE>>)[]): Binder<QR, MODE>[];
+        concat(...items: (Binder<T[], MODE> | Binder<T, MODE> | Binder<T, MODE>[] | ReadonlyArray<Binder<T, MODE>>)[]): Binder<T, MODE>[];
         join(separator?: string): string;
-        slice<Q extends T>(start?: number, end?: number): Binder<Q, MODE>[];
+        slice(start?: number, end?: number): Binder<T, MODE>[];
 
         // Search in an Array
         includes(searchElement: T, fromIndex?: number): boolean;
-        includes<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): boolean;
+        includes(searchElement: Binder<T, MODE>, fromIndex?: number): boolean;
         indexOf(searchElement: T, fromIndex?: number): number;
-        indexOf<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): number;
+        indexOf(searchElement: Binder<T, MODE>, fromIndex?: number): number;
         lastIndexOf(searchElement: T, fromIndex?: number): number;
-        lastIndexOf<Q extends T>(searchElement: Binder<Q, MODE>, fromIndex?: number): number;
+        lastIndexOf(searchElement: Binder<T, MODE>, fromIndex?: number): number;
 
         // Iterator
-        forEach<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => void): void;
-        every<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): boolean;
-        some<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): boolean;
-        map<U, Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => U): U[];
-        filter<Q extends T>(callbackfn: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): Binder<Q, MODE>[];
-        find<Q extends T>(predicate: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): Binder<Q, MODE> | undefined;
-        findIndex<Q extends T>(predicate: (value: Binder<Q, MODE>, index: number, arrayBinder: this) => boolean): number;
-        reduce<Q extends T>(predicate: (previousValue: Binder<Q, MODE>, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => Binder<Q, MODE>, initialValue?: Binder<Q, MODE>): Binder<Q, MODE>;
-        reduce<U, Q extends T>(predicate: (previousValue: U, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
-        reduceRight<Q extends T>(predicate: (previousValue: Binder<Q, MODE>, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => Binder<Q, MODE>, initialValue?: Binder<Q, MODE>): Binder<Q, MODE>;
-        reduceRight<U, Q extends T>(predicate: (previousValue: U, currentValue: Binder<Q, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+        forEach(callbackfn: (value: Binder<T, MODE>, index: number, arrayBinder: this) => void): void;
+        every(callbackfn: (value: Binder<T, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        some(callbackfn: (value: Binder<T, MODE>, index: number, arrayBinder: this) => boolean): boolean;
+        map<U>(callbackfn: (value: Binder<T, MODE>, index: number, arrayBinder: this) => U): U[];
+        filter(callbackfn: (value: Binder<T, MODE>, index: number, arrayBinder: this) => boolean): Binder<T, MODE>[];
+        find(predicate: (value: Binder<T, MODE>, index: number, arrayBinder: this) => boolean): Binder<T, MODE> | undefined;
+        findIndex(predicate: (value: Binder<T, MODE>, index: number, arrayBinder: this) => boolean): number;
+        reduce(predicate: (previousValue: Binder<T, MODE>, currentValue: Binder<T, MODE>, currentIndex: number, arrayBinder: this) => Binder<T, MODE>, initialValue?: Binder<T, MODE>): Binder<T, MODE>;
+        reduce<U>(predicate: (previousValue: U, currentValue: Binder<T, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
+        reduceRight(predicate: (previousValue: Binder<T, MODE>, currentValue: Binder<T, MODE>, currentIndex: number, arrayBinder: this) => Binder<T, MODE>, initialValue?: Binder<T, MODE>): Binder<T, MODE>;
+        reduceRight<U>(predicate: (previousValue: U, currentValue: Binder<T, MODE>, currentIndex: number, arrayBinder: this) => U, initialValue: U): U;
     }
 
     interface InternalAnyArrayBinder<MODE> extends InternalAbstractBinder<any[], MODE> {
@@ -281,7 +281,7 @@ declare module binderInternals {
         removeAt(index: number, deleteCount?: number): this;
 
         // Other methods
-        concat(...items: (binderUtils.AbstractBinder<any[], MODE> | binderUtils.AbstractBinder<any, MODE> | binderUtils.AbstractBinder<any, MODE>[] | ReadonlyArray<binderUtils.AbstractBinder<any, MODE>>)[]): Binder<any, MODE>[];
+        concat(...items: (Binder<any[], MODE> | Binder<any, MODE> | Binder<any, MODE>[] | ReadonlyArray<Binder<any, MODE>>)[]): Binder<any, MODE>[];
         join(separator?: string): string;
         slice(start?: number, end?: number): Binder<any, MODE>[];
 
@@ -308,8 +308,8 @@ declare module binderInternals {
     }
 
     interface InternalObjectBinder<T, MANDATORYKEYS extends keyof T, KEYS extends keyof T, MODE> extends InternalAbstractBinder<T, MODE> {
-        get<KEY extends MANDATORYKEYS, Q extends T[KEY]>(key: KEY): Binder<Q, MODE>;
-        get<KEY extends KEYS, Q extends T[KEY]>(key: KEY): Binder<Q, MODE> | undefined;
+        get<KEY extends MANDATORYKEYS>(key: KEY): Binder<T[KEY], MODE>;
+        get<KEY extends KEYS>(key: KEY): Binder<T[KEY], MODE> | undefined;
         set<KEY extends KEYS>(key: KEY, value: T[KEY]): this;
 
         delete(key: OptionalProperties<T, KEYS>): this;
