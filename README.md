@@ -165,7 +165,7 @@ This is the basic representation of any binder.
 
 - **`isMapBinder(): boolean`**: returns `true` when the contained data is an object, otherwise returns `false`. This method is similar to `isObjectBinder` but in TypeScript, when this method returns `true` the current binder is downcast to a map binder (only if the contained type is compatible).
 
-- **`_(): this`**: returns the same binder where it is invoked (return `this`). This method can be useful in TypeScript in rare ocations (only if you are using an array o an array) because it allows to downcast a binder to object binder, map binder or array binder (if applicable).
+- **`_(): this`**: (for backward compatibility purposes, not required any more) returns the same binder where it is invoked (return `this`). This method can be useful in TypeScript in rare ocations because it allows to downcast a binder to the proper binder type (value binder, object binder, map binder or array binder).
 
 ## Object binder
 
@@ -855,13 +855,7 @@ ReactDOM.render(<PersonEditor person={person}/>, mountNode);
 # Limitations
 
 - Only simple JavaScript are supported, more complex types like `Map` are not supported.
-- In TypeScript, if you try to access to an array's element of an array through the accessor, your will get the binder without the proper downcast, instead you can use the `get` method or  the `_()` method in the resulting binder. E.g.:
 
-	```typescript
-	var wrongTypeBinder = arrayBinder[index];
-    var correctTypeBinder = arrayBinder.get(index);
-    var correctTypeBinder = arrayBinder.[index]._();
-	```
 
 # License
 

@@ -104,7 +104,6 @@ declare module binderInternals {
     type RequiredType<T> = T extends null | undefined ? never : T;
 
     type TypeWhenAny<T, Twhen, Telse> = { _extends(): T } extends { _extends(): '__binder_any_type__' } ? Twhen : Telse;
-    type TypeWhenArray<T, Twhen, Telse> = { _extends(): T } extends { _extends(): Array<any> } ? Twhen : Telse;    
 
     class InternalBaseBinder<T, MODE> {
         private _mode : MODE;
@@ -213,7 +212,7 @@ declare module binderInternals {
     interface InternalArrayBinder<T, MODE> extends InternalAbstractBinder<T[], MODE> {
         length: number;
         //readonly [index: number]: Binder<T, MODE>; // Not suported due the mentioned bug
-        readonly [index: number]: TypeWhenArray<T, binderUtils.AbstractBinder<T>, Binder<TypeWhenArray<T, undefined, T>, MODE>>;
+        readonly [index: number]: Binder<T, MODE>;
 
         get(index: number): Binder<T, MODE>;
         set(index: number, value: T): this;

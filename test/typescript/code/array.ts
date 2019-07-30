@@ -151,7 +151,7 @@ numberVar = arrayBinder.length
 numberVar = mapBinder.size
 
 itemBinder = arrayBinder.get(0)
-//arrayItemBinder = arrayBinder[0] // It doesn't work because in this case an AbstactBinder is returned due TypeScript limitations
+arrayItemBinder = arrayBinder[0]
 itemBinderOpt = mapBinder.get('foo')
 
 arrayBinder = arrayBinder.set(0, valueVar)
