@@ -764,7 +764,7 @@ if (avpb.isObjectBinder()) {
 }
 
 if (avpfb.isObjectBinder()) {
-    var anyObject = avb
+    let anyObject = avpfb
     uavpfb = avpfb.get('foo')
     anyObject = avpfb.set('foo', anyValue)
     anyObject = avpfb.delete('foo')
@@ -777,7 +777,7 @@ if (avpfb.isObjectBinder()) {
 }
 
 if (avfb.isObjectBinder()) {
-    var anyObject = avb
+    let anyObject = avfb
     uavfb = avfb.get('foo')
     anyObject = avfb.set('foo', anyValue)
     anyObject = avfb.delete('foo')
