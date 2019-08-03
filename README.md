@@ -3,12 +3,17 @@
 [![npm](https://img.shields.io/npm/v/immutable-binder.svg)](http://npm.im/immutable-binder)
 [![travis](https://travis-ci.org/juanluispaz/immutable-binder.svg?branch=master)](https://travis-ci.org/juanluispaz/immutable-binder)
 [![Coverage Status](https://coveralls.io/repos/github/juanluispaz/immutable-binder/badge.svg?branch=master)](https://coveralls.io/github/juanluispaz/immutable-binder?branch=master)
-#[![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/immutable-binder/src/binder.min.js?compression=gzip)](https://unpkg.com/immutable-binder/src/binder.js)
+<!--
+[![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/immutable-binder/src/binder.min.js?compression=gzip)](https://unpkg.com/immutable-binder/src/binder.js)
+-->
 [![minified size](https://badgen.net/bundlephobia/min/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
-# How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | wc -c
+<!--
+How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | wc -c
+-->
 [![minified & gziped size](https://badgen.net/bundlephobia/minzip/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
-# How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | npx gzip-size
-
+<!--
+How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | npx gzip-size
+-->
 
 **immutable-binder** is a JavaScript library that allows to create **immutable** data cursors (called here binders).
 
