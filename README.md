@@ -1,5 +1,15 @@
 # immutable-binder
 
+[![npm](https://img.shields.io/npm/v/immutable-binder.svg)](http://npm.im/immutable-binder)
+[![travis](https://travis-ci.org/juanluispaz/immutable-binder.svg?branch=master)](https://travis-ci.org/juanluispaz/immutable-binder)
+[![Coverage Status](https://coveralls.io/repos/github/juanluispaz/immutable-binder/badge.svg?branch=master)](https://coveralls.io/github/juanluispaz/immutable-binder?branch=master)
+#[![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/immutable-binder/src/binder.min.js?compression=gzip)](https://unpkg.com/immutable-binder/src/binder.js)
+[![minified size](https://badgen.net/bundlephobia/min/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
+# How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | wc -c
+[![minified & gziped size](https://badgen.net/bundlephobia/minzip/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
+# How to get it: npx terser --compress --mangle --toplevel --define process.env.NODE_ENV=production --mangle-props -- src/binder.js | npx gzip-size
+
+
 **immutable-binder** is a JavaScript library that allows to create **immutable** data cursors (called here binders).
 
 **immutable-binder** allows you to edit immutable complex data in a easy way, allowing you to navigate through the data in the same way that it is structured.
@@ -10,7 +20,7 @@ The binder handles the contained data in an immutable way, as well, the binder i
 
 With **immutable-binder** you can have the advantages of the two-way data bindings in an immutable environment (like React) running in a safe and immutable way.
 
-The **immutable-binder** is a very small library (15.2 kb minified, 3.4 kb gzipped) with near to 735 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
+The **immutable-binder** is a very small library (less than 3 kb gzipped when you use in your webpack project) with near to 735 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
 
 # Summary
 
