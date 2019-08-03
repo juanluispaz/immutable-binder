@@ -176,3 +176,16 @@ test('containsErrors method on object (rejected promise)', function() {
         expect(b.childrenContainErrors()).toBe(true);
     });
 });
+
+test('preserve exception when set error on a valid binder', function() {
+    var error = undefined;
+    var b = binder(99, function() {
+        if (error) {
+            throw error;
+        }
+    });
+    error = new Error();
+    return b.setError(Promise.resolve('error message')).catch(function (e) {
+        expect(e).toBe(error);
+    });
+})
