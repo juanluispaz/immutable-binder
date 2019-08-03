@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/immutable-binder.svg)](http://npm.im/immutable-binder)
 [![travis](https://travis-ci.org/juanluispaz/immutable-binder.svg?branch=master)](https://travis-ci.org/juanluispaz/immutable-binder)
-[![Coverage Status](https://coveralls.io/repos/github/juanluispaz/immutable-binder/badge.svg?branch=master)](https://coveralls.io/github/juanluispaz/immutable-binder?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/juanluispaz/immutable-binder/master.svg)](https://coveralls.io/github/juanluispaz/immutable-binder?branch=master)
 [![minified size](https://badgen.net/bundlephobia/min/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
 [![minified & gziped size](https://badgen.net/bundlephobia/minzip/immutable-binder)](https://bundlephobia.com/result?p=immutable-binder)
 <!--
