@@ -6,13 +6,15 @@
   "types": "src/binder.d.ts",
   "dependencies": {},
   "devDependencies": {
-    "jest": "^21.0.1",
     "cloc": "^2.2.0",
+    "coveralls": "^3.0.5",
+    "jest": "^21.0.1",
     "typescript": "3.3.3"
   },
   "scripts": {
     "test": "jest",
     "test-coverage": "jest --coverage",
+    "test-coveralls": "jest --coverage --coverageReporters=text-lcov |  coveralls",
     "test-pro": "NODE_ENV=production jest",
     "test-pro-coverage": "NODE_ENV=production jest --coverage",
     "cloc": "cloc . --exclude-dir=node_modules",
