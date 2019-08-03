@@ -11,22 +11,10 @@
  * - _$value: the value contained by the binder
  * - _$update(newBinder): function that must be called in order to update the value in the parent binder, receive by
  *                        argument the new binder to be used instead the current one. This function is used as the
- *                        extras object. This function can be a proxy, see proxy updater.
+ *                        extras object.
  * - _$oldChildrenHaveErrors: optional boolean. If it is set to true is beacuse during the initialization of the binder
  *                        at least one child binder contains an error setted (using setError), be careful, if the child
  *                        is new it is not going to take in consideration.
- *
- * --------------------------------------------------------------------------------------------------------------------
- * Proxy updater
- * -
- *
- * A proxy updater is used in the development environment in order to allow change the _$update function in a frozen
- * object, this function contains the _$proxy property with the real update function (and the real extras object).
- *
- * A proxy ubpater contains the following properties:
- * - _$proxy(newBinder): function that must be called but the proxy function in order to update the value in the parent
- *                       binder, receive by argument the new binder to be used instead the current one. This function is
- *                       used as the extras object.
  *
  * --------------------------------------------------------------------------------------------------------------------
  * Extras
@@ -158,9 +146,6 @@ function isEqual(a, b) {
 function setUpdater(parent, binder, key, contentUpdater) {
     var binderUpdater = binder._$update;
     if (binderUpdater) {
-        if (process.env.NODE_ENV !== "production") {
-            binderUpdater = binderUpdater._$proxy;
-        }
         binderUpdater._$parent = parent;
         binderUpdater._$key = key;
         binderUpdater._$contentUpdater = contentUpdater
@@ -184,17 +169,7 @@ function setUpdater(parent, binder, key, contentUpdater) {
     Object.defineProperty(updater, '_$validBinder', {value: true, writable: true});
     Object.defineProperty(updater, '_$contentUpdater', {value: contentUpdater, writable: true});
 
-    if (process.env.NODE_ENV !== "production") {
-            // Proxy function to allow change its content when the object is frozen
-            binder._$update = function proxyUpdater(newBinder) {
-                return proxyUpdater._$proxy(newBinder);
-            };
-            binder._$update._$proxy = updater;
-
-        Object.freeze(binder);
-    } else {
-        binder._$update = updater;
-    }
+    binder._$update = updater;
 }
 
 function invalidateBinder(binder) {
@@ -378,11 +353,7 @@ AbstractBinder.prototype._ = function() {
 // Additional information
 
 AbstractBinder.prototype.getExtras = function () {
-    if (process.env.NODE_ENV !== "production") {
-        return this._$update._$proxy;
-    } else {
-        return this._$update;
-    }
+    return this._$update;
 };
 
 AbstractBinder.prototype.getParent = function () {

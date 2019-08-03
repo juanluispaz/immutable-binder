@@ -10,7 +10,7 @@ The binder handles the contained data in an immutable way, as well, the binder i
 
 With **immutable-binder** you can have the advantages of the two-way data bindings in an immutable environment (like React) running in a safe and immutable way.
 
-The **immutable-binder** is a very small library (15.4 kb minified, 3.4 kb gzipped) with near to 750 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
+The **immutable-binder** is a very small library (15.2 kb minified, 3.4 kb gzipped) with near to 735 loc in JavaScript and 230 loc in TypeScript of type definitions. The code is full tested in JavaScript and TypeScript and it has **100% of test coverage**.
 
 # Summary
 
